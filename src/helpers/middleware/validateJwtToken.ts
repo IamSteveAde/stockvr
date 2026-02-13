@@ -17,6 +17,7 @@ export function validateJwtToken(req: Request, res: Response, next: NextFunction
         const decoded = jwt.verify(token, SECRETS.JWT_SECRET);
         // Attach decoded token to request for use in controller
         (req as any).jwtPayload = decoded;
+        
         next();
     } catch (err) {
         next(new InternalError(null, "Invalid or expired token."));
