@@ -8,7 +8,7 @@ import { ACCESS_TYPES } from "../../../helpers/accessTypes";
 
 export const AccountDTO = object(
     {
-        email: string().required("Email missing."),
+        email: string().email("Invalid email format.").required("Email missing."),
         phoneNo: string().required("Phone number missing."),
         password: string().min(8, "Password cannot be less than 8 characters..").required("Password missing"),
     }
@@ -62,7 +62,7 @@ export const verifyPassword = (dto: TPWDDto, storedHash: string): Promise<boolea
 };
 
 export async function createUserRecord(dto: TAccountDTO) {
-    return prisma.users.create(
+    return await prisma.users.create(
         {
             data: {
                 uid: `ACC-${nanoid(24)}`,
