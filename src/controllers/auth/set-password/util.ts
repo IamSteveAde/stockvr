@@ -26,5 +26,5 @@ export async function fetchUserAndProfileByUid(userProfileUid: string) {
 export async function updateUserPassword(profile: Awaited<ReturnType<typeof fetchUserAndProfileByUid>>, password: string) {
     const userId = profile.owner.uid
     const hashed = await hashPassword({ password });
-    await prisma.users.update({ where: { uid: userId }, data: { password: hashed } });
+    await prisma.users.update({ where: { uid: userId }, data: { password: hashed , pwdChangeAt: new Date() } });
 }
