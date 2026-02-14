@@ -14,23 +14,44 @@ datasource db {
 }
 
 model Users {
-  id           Int           @unique @default(autoincrement())
-  uid          String        @unique
-  email        String        @unique
+  id           Int          @unique @default(autoincrement())
+  uid          String       @unique
+  email        String       @unique
   password     String
-  pwdChangeAt  DateTime      @updatedAt
-  verified     Boolean       @default(false)
+  isFirstLogin Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @default(now()) @updatedAt
+  pwdChangeAt  DateTime     @default(now())
+  verified     Boolean      @default(false)
   userProfiles UserProfile?
 }
 
 model UserProfile {
-  id         Int     @unique @default(autoincrement())
-  uid        String  @unique
-  status     String  @default("Active")
-  accessType String
-  userId     String  @unique
-  phoneNo    String?
-  name       String?
-  profileUrl String?
-  owner      Users   @relation(fields: [userId], references: [uid])
+  id             Int      @unique @default(autoincrement())
+  uid            String   @unique
+  status         String   @default("Active")
+  accessType     String
+  userId         String   @unique
+  phoneNo        String?
+  name           String?
+  profileUrl     String?
+  pin            String?
+  businessType   String?
+  location       String?
+  dailyStaffSize String?
+  isBusiness     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt
+  owner          Users    @relation(fields: [userId], references: [uid])
+}
+
+model Shift {
+  id        Int      @id @default(autoincrement())
+  uid       String   @unique
+  name      String
+  startTime String
+  endTime   String
+  date      DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

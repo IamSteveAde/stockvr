@@ -31,7 +31,7 @@ export async function validateUserPassword(password: string, storedHash: string)
 export function getUserAccess(user: Awaited<ReturnType<typeof fetchUserByEmail>>) {
     const profile = user.userProfiles;
     if (!profile) throw new InternalError(null, "User profile not found.");
-    const accessType = profile.accessType as keyof typeof PERMISSIONS;
+    const accessType = profile.accessType.toLowerCase() as keyof typeof PERMISSIONS;
     const permissions = PERMISSIONS[accessType] || [];
     return { accessType, permissions };
 }
@@ -41,11 +41,15 @@ export function createJwtToken({ accessType, permissions, userProfileUid }: {
     permissions: string[];
     userProfileUid: string;
 }) {
-    const secret = SECRETS.JWT_SECRET || "your_jwt_secret";
+    const secret = SECRETS.JWT_SECRET
     const payload = {
         accessType,
         permissions,
         userProfileUid
     };
     return jwt.sign(payload, secret, { expiresIn: "1d" });
+}
+
+export function getFirstLoginStatus(user: Awaited<ReturnType<typeof fetchUserByEmail>>) {
+    return {isFirstLogin: user.isFirstLogin, isBusiness: user.userProfiles?.isBusiness, proceedToProfileCreation: user.isFirstLogin && user.userProfiles?.isBusiness}
 }

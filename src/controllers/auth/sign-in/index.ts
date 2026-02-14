@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { InternalError } from "../../../helpers/errorHandler/errorHandler";
 import { validateDTO } from "../../../helpers/util";
-import { SignInDTO, fetchUserByEmail, validateUserPassword, getUserAccess, createJwtToken } from "./util";
+import { SignInDTO, fetchUserByEmail, validateUserPassword, getUserAccess, createJwtToken, getFirstLoginStatus } from "./util";
 import { success } from "../../../helpers/errorHandler/statusCodes";
 
 export async function SignInController(req: Request, res: Response, next: NextFunction) {
@@ -17,7 +17,9 @@ export async function SignInController(req: Request, res: Response, next: NextFu
             permissions,
             userProfileUid: user.userProfiles!.uid
         });
-        success(res, { token, accessType, permissions }, "Sign in successful");
+
+        const d = getFirstLoginStatus(user)
+        success(res, { token, accessType, permissions, proceedToProfileCreation: d.proceedToProfileCreation }, "Sign in successful");
     } catch (error) {
         next(new InternalError(error));
     }
