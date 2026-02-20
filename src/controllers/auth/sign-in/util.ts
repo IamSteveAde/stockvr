@@ -8,7 +8,7 @@ import { SECRETS } from "../../../helpers/util/secrets";
 
 export const SignInDTO = object({
     email: string().required("Email missing."),
-    password: string().min(8, "Password cannot be less than 8 characters.").required("Password missing")
+    password: string().required("Password missing")
 });
 
 export type TSignInDTO = typeof SignInDTO.__outputType;
@@ -51,5 +51,5 @@ export function createJwtToken({ accessType, permissions, userProfileUid }: {
 }
 
 export function getFirstLoginStatus(user: Awaited<ReturnType<typeof fetchUserByEmail>>) {
-    return {isFirstLogin: user.isFirstLogin, isBusiness: user.userProfiles?.isBusiness, proceedToProfileCreation: user.isFirstLogin && user.userProfiles?.isBusiness}
+    return {isFirstLogin: user.isFirstLogin, isBusinessOwner: user.isBusinessOwner, proceedToProfileCreation: user.isFirstLogin && user.isBusinessOwner}
 }

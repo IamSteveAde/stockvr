@@ -24,3 +24,6 @@ export async function SignInController(req: Request, res: Response, next: NextFu
         next(new InternalError(error));
     }
 }
+
+
+// add BusinessProfile if user is BusinessOwner

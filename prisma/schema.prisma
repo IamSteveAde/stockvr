@@ -14,44 +14,114 @@ datasource db {
 }
 
 model Users {
-  id           Int          @unique @default(autoincrement())
-  uid          String       @unique
-  email        String       @unique
-  password     String
-  isFirstLogin Boolean      @default(true)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @default(now()) @updatedAt
-  pwdChangeAt  DateTime     @default(now())
-  verified     Boolean      @default(false)
-  userProfiles UserProfile?
+  id               Int               @unique @default(autoincrement())
+  uid              String            @unique
+  email            String            @unique
+  password         String
+  isBusinessOwner  Boolean           @default(false)
+  isFirstLogin     Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now()) @updatedAt
+  pwdChangeAt      DateTime          @default(now())
+  verified         Boolean           @default(false)
+  userProfiles     UserProfile?
+  businessProfiles BusinessProfile[]
+}
+
+model BusinessProfile {
+  id               Int               @id @default(autoincrement())
+  uid              String            @unique
+  userUid          String            @unique
+  name             String
+  businessType     String
+  location         String
+  dailyStaffSize   String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  owner            Users?            @relation(fields: [userUid], references: [uid])
+  userProfiles     UserProfile[]
+  baseShifts       BaseShift[]
+  shiftAssignments ShiftAssignment[]
+  shifts           Shift[]
 }
 
 model UserProfile {
-  id             Int      @unique @default(autoincrement())
-  uid            String   @unique
-  status         String   @default("Active")
-  accessType     String
-  userId         String   @unique
-  phoneNo        String?
-  name           String?
-  profileUrl     String?
-  pin            String?
-  businessType   String?
-  location       String?
-  dailyStaffSize String?
-  isBusiness     Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @default(now()) @updatedAt
-  owner          Users    @relation(fields: [userId], references: [uid])
+  id               Int               @id @default(autoincrement())
+  uid              String            @unique
+  status           String            @default("Active")
+  accessType       String
+  userId           String            @unique
+  phoneNo          String?
+  name             String?
+  profileUrl       String?
+  pin              String?
+  businessUid      String?
+  business         BusinessProfile?  @relation(fields: [businessUid], references: [uid])
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now()) @updatedAt
+  owner            Users             @relation(fields: [userId], references: [uid])
+  shiftAssignments ShiftAssignment[]
+  shiftsInCharge   BaseShift[]       @relation("staffInCharge")
+  shifts           Shift[]
+}
+
+model BaseShift {
+  id              Int               @id @default(autoincrement())
+  uid             String            @unique
+  name            String
+  businessUid     String
+  startTime       String
+  endTime         String
+  startDate       DateTime?
+  endDate         DateTime?
+  isWeekly        Boolean           @default(false)
+  repeatsOn       String[] //this is days of the week
+  staffInChargeId String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  owningBusiness  BusinessProfile   @relation(fields: [businessUid], references: [uid])
+  staffInCharge   UserProfile       @relation(fields: [staffInChargeId], references: [uid], name: "staffInCharge")
+  linkedStaff     ShiftAssignment[]
+  shifts          Shift[]
+}
+
+model ShiftAssignment {
+  id             Int             @id @default(autoincrement())
+  uid            String          @unique
+  businessUid    String
+  baseShiftUid   String
+  staffUid       String
+  assignedAt     DateTime        @default(now())
+  owningBusiness BusinessProfile @relation(fields: [businessUid], references: [uid])
+  baseShift      BaseShift       @relation(fields: [baseShiftUid], references: [uid])
+  staff          UserProfile     @relation(fields: [staffUid], references: [uid])
+  shifts         Shift[] // all generated shifts for this assignment
+
+  @@unique([baseShiftUid, staffUid])
 }
 
 model Shift {
-  id        Int      @id @default(autoincrement())
-  uid       String   @unique
-  name      String
-  startTime String
-  endTime   String
-  date      DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 Int             @id @default(autoincrement())
+  uid                String          @unique
+  baseShiftUid       String
+  businessUid        String
+  shiftAssignmentUid String
+  staffUid           String
+  date               DateTime // the specific date of this shift occurrence
+  startTime          String
+  endTime            String
+  status             String          @default("PENDING")
+  clockInTime        DateTime?
+  clockOutTime       DateTime?
+  notes              String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  owningBusiness     BusinessProfile @relation(fields: [businessUid], references: [uid])
+  baseShift          BaseShift       @relation(fields: [baseShiftUid], references: [uid])
+  assignment         ShiftAssignment @relation(fields: [shiftAssignmentUid], references: [uid])
+  staff              UserProfile     @relation(fields: [staffUid], references: [uid])
+
+  @@unique([shiftAssignmentUid, date]) // one shift per assignment per day
+  @@index([staffUid, date]) // fast lookups by staff and date
+  @@index([baseShiftUid, date]) // fast lookups by base shift and date
 }

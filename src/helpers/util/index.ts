@@ -33,3 +33,9 @@ export function getProfileUidFromRequest(req: Request){
 
     return payload?.userProfileUid
 }
+
+export function getBusinessIdFromRequest(req: Request){
+    const payload = (req as any).jwtPayload;
+
+    return payload?.businessUid
+}

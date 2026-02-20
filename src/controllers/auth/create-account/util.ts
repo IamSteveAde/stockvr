@@ -68,11 +68,11 @@ export async function createUserRecord(dto: TAccountDTO) {
                 uid: `ACC-${nanoid(24)}`,
                 email: dto.email,
                 password: await hashPassword({password: dto.password}),
+                isBusinessOwner: true,
                 userProfiles: {
                     create: {
                         uid: `BUS-${nanoid(12)}`,
                         accessType: ACCESS_TYPES.owner,
-                        isBusiness: true
                     }
                 }
             }
