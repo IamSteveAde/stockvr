@@ -20,7 +20,8 @@ export function generateResetLink(userUid: string) {
     const token = createJwtToken({
         accessType: "reset-password",
         permissions: [],
-        userProfileUid: userUid
+        userProfileUid: userUid,
+        businessUid: undefined
     });
     const baseUri = SECRETS.FRONTEND_URL
     const frontendUrl = `${baseUri}/reset-password`;

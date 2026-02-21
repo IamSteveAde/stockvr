@@ -15,7 +15,8 @@ export async function SignInController(req: Request, res: Response, next: NextFu
         const token = createJwtToken({
             accessType,
             permissions,
-            userProfileUid: user.userProfiles!.uid
+            userProfileUid: user.userProfiles!.uid,
+            businessUid: user?.businessProfiles?.uid
         });
 
         const d = getFirstLoginStatus(user)

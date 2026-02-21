@@ -4,6 +4,8 @@ import { InternalError } from "../../../helpers/errorHandler/errorHandler";
 import crypto from "node:crypto";
 import { nanoid } from "nanoid";
 import { ACCESS_TYPES } from "../../../helpers/accessTypes";
+import { createJwtToken } from "../sign-in/util";
+import { SECRETS } from "../../../helpers/util/secrets";
 
 
 export const AccountDTO = object(
@@ -80,5 +82,16 @@ export async function createUserRecord(dto: TAccountDTO) {
     )
 }
 
+export function generateRVerificationLink(userUid: string) {
+    const token = createJwtToken({
+        accessType: "verify-user",
+        permissions: [],
+        userProfileUid: userUid,
+        // businessUid: undefined
+    });
+    const baseUri = SECRETS.BACKEND_URL
+    const vUrl = `${baseUri}/api/auth/verify`;
+    return `${vUrl}?token=${token}`;
+}
 
 

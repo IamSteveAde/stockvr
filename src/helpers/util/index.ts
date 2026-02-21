@@ -9,8 +9,8 @@ export async function validateDTO(DTOSchema: ObjectSchema<any, any>, params: any
 export async function sendMail({ to, subject, html }: { to: string; subject: string; html: string }) {
     const transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
-        port: Number(process.env.SMTP_PORT) || 587,
-        secure: false,
+        port: Number(process.env.SMTP_PORT),
+        secure: true,
         auth: {
             user: process.env.SMTP_USER,
             pass: process.env.SMTP_PASS
@@ -24,7 +24,7 @@ export async function sendMail({ to, subject, html }: { to: string; subject: str
         html
     });
 
-    transporter.close()
+    // transporter.close()
 }
 
 

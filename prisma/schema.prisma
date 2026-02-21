@@ -25,7 +25,7 @@ model Users {
   pwdChangeAt      DateTime          @default(now())
   verified         Boolean           @default(false)
   userProfiles     UserProfile?
-  businessProfiles BusinessProfile[]
+  businessProfiles BusinessProfile?
 }
 
 model BusinessProfile {

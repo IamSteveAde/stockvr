@@ -16,7 +16,7 @@ export type TSignInDTO = typeof SignInDTO.__outputType;
 export async function fetchUserByEmail(email: string) {
     const user = await prisma.users.findFirst({
         where: { email },
-        include: { userProfiles: true }
+        include: { userProfiles: true, businessProfiles: true }
     });
     if (!user) throw new InternalError(null, "User not found.");
     return user;
@@ -31,25 +31,28 @@ export async function validateUserPassword(password: string, storedHash: string)
 export function getUserAccess(user: Awaited<ReturnType<typeof fetchUserByEmail>>) {
     const profile = user.userProfiles;
     if (!profile) throw new InternalError(null, "User profile not found.");
-    const accessType = profile.accessType.toLowerCase() as keyof typeof PERMISSIONS;
+
+    const accessType = user.isBusinessOwner ? "owner" : profile.accessType.toLowerCase() as keyof typeof PERMISSIONS;
     const permissions = PERMISSIONS[accessType] || [];
     return { accessType, permissions };
 }
 
-export function createJwtToken({ accessType, permissions, userProfileUid }: {
+export function createJwtToken({ accessType, permissions, userProfileUid, businessUid }: {
     accessType: string;
     permissions: string[];
     userProfileUid: string;
+    businessUid?: string|undefined
 }) {
     const secret = SECRETS.JWT_SECRET
     const payload = {
         accessType,
         permissions,
-        userProfileUid
+        userProfileUid,
+        businessUid
     };
     return jwt.sign(payload, secret, { expiresIn: "1d" });
 }
 
 export function getFirstLoginStatus(user: Awaited<ReturnType<typeof fetchUserByEmail>>) {
-    return {isFirstLogin: user.isFirstLogin, isBusinessOwner: user.isBusinessOwner, proceedToProfileCreation: user.isFirstLogin && user.isBusinessOwner}
+    return { isFirstLogin: user.isFirstLogin, isBusinessOwner: user.isBusinessOwner, proceedToProfileCreation: user.isFirstLogin && user.isBusinessOwner }
 }
