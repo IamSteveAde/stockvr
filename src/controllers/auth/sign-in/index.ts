@@ -16,11 +16,11 @@ export async function SignInController(req: Request, res: Response, next: NextFu
             accessType,
             permissions,
             userProfileUid: user.userProfiles!.uid,
-            businessUid: user?.businessProfiles?.uid
+            businessUid: user?.userProfiles?.business?.uid
         });
 
         const d = getFirstLoginStatus(user)
-        success(res, { token, accessType, permissions, proceedToProfileCreation: d.proceedToProfileCreation }, "Sign in successful");
+        success(res, { token, accessType, permissions, proceedToProfileCreation: d.proceedToProfileCreation, isFirstLogin: d.isFirstLogin }, "Sign in successful");
     } catch (error) {
         next(new InternalError(error));
     }

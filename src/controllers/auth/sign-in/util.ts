@@ -16,7 +16,7 @@ export type TSignInDTO = typeof SignInDTO.__outputType;
 export async function fetchUserByEmail(email: string) {
     const user = await prisma.users.findFirst({
         where: { email },
-        include: { userProfiles: true, businessProfiles: true }
+        include: { userProfiles: { include:{business: true} }}
     });
     if (!user) throw new InternalError(null, "User not found.");
     return user;
@@ -54,5 +54,7 @@ export function createJwtToken({ accessType, permissions, userProfileUid, busine
 }
 
 export function getFirstLoginStatus(user: Awaited<ReturnType<typeof fetchUserByEmail>>) {
+    console.log(user)
+
     return { isFirstLogin: user.isFirstLogin, isBusinessOwner: user.isBusinessOwner, proceedToProfileCreation: user.isFirstLogin && user.isBusinessOwner }
 }

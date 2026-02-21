@@ -11,7 +11,7 @@ export const CreateStaffDTO = object({
     email: string().email("Invalid email address.").required("Email address is required."),
     phoneNo: string().required("Phone number is required."),
     role: string().oneOf([ACCESS_TYPES.staff, ACCESS_TYPES.manager], "Invalid role").required("Role is required."),
-    businessId: string().required("Business profile UID is required.")
+    businessUid: string().required("Business profile UID is required.")
 });
 
 export type TCreateStaffDTO = typeof CreateStaffDTO.__outputType;
@@ -41,7 +41,7 @@ export async function createStaff(data: TCreateStaffDTO) {
             userProfiles: {
                 create: {
                     uid: `PROFILE-${nanoid(12)}`,
-                    businessUid: data.businessId,
+                    businessUid: data.businessUid,
                     accessType: data.role,
                     phoneNo: data.phoneNo,
                     name: data.name,

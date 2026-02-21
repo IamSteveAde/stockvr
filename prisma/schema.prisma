@@ -14,18 +14,19 @@ datasource db {
 }
 
 model Users {
-  id               Int               @unique @default(autoincrement())
-  uid              String            @unique
-  email            String            @unique
-  password         String
-  isBusinessOwner  Boolean           @default(false)
-  isFirstLogin     Boolean           @default(true)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @default(now()) @updatedAt
-  pwdChangeAt      DateTime          @default(now())
-  verified         Boolean           @default(false)
-  userProfiles     UserProfile?
-  businessProfiles BusinessProfile?
+  id                Int              @unique @default(autoincrement())
+  uid               String           @unique
+  email             String           @unique
+  password          String
+  isBusinessOwner   Boolean          @default(false)
+  isFirstLogin      Boolean          @default(true)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @default(now()) @updatedAt
+  pwdChangeAt       DateTime         @default(now())
+  verified          Boolean          @default(false)
+  userProfiles      UserProfile?
+  // businessProfiles  BusinessProfile? @relation(fields: [businessProfileUid], references: [uid])
+  // businessProfileId Int?
 }
 
 model BusinessProfile {
@@ -38,11 +39,12 @@ model BusinessProfile {
   dailyStaffSize   String
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
-  owner            Users?            @relation(fields: [userUid], references: [uid])
-  userProfiles     UserProfile[]
+  businessOwner    UserProfile?      @relation(fields: [userUid], references: [uid], name: "BusinessProfileToUserProfile")
+  userProfiles     UserProfile[]     @relation("UserProfiletoBusiness")
   baseShifts       BaseShift[]
   shiftAssignments ShiftAssignment[]
   shifts           Shift[]
+  // users            Users[]
 }
 
 model UserProfile {
@@ -56,13 +58,14 @@ model UserProfile {
   profileUrl       String?
   pin              String?
   businessUid      String?
-  business         BusinessProfile?  @relation(fields: [businessUid], references: [uid])
+  business         BusinessProfile?  @relation(fields: [businessUid], references: [uid], name: "UserProfiletoBusiness")
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @default(now()) @updatedAt
   owner            Users             @relation(fields: [userId], references: [uid])
   shiftAssignments ShiftAssignment[]
   shiftsInCharge   BaseShift[]       @relation("staffInCharge")
   shifts           Shift[]
+  businessProfile  BusinessProfile?  @relation("BusinessProfileToUserProfile")
 }
 
 model BaseShift {

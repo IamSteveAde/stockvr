@@ -1,7 +1,8 @@
-import { object, string, date, boolean, array } from "yup";
+import { object, string, date, boolean, array, Maybe } from "yup";
 import { prisma } from "../../../helpers/db/client";
 import { InternalError } from "../../../helpers/errorHandler/errorHandler";
 import { nanoid } from "nanoid";
+import { eachDayOfInterval, getDay, isWithinInterval, format } from 'date-fns'
 
 export const CreateShiftDTO = object({
     name: string().required("Shift name is required."),
@@ -9,75 +10,136 @@ export const CreateShiftDTO = object({
     endTime: string().required("End time is required."),
     startDate: date().required("Shift start date is required."),
     endDate: date().notRequired(),
-    businesUid: string().required("businessUid required"),
     isWeekly: boolean().default(false),
     repeatsOn: array(
         string().oneOf(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"])
     ).default([]),
-    staffInChargeId: string().required("Provide staff in charge to proceed."),
+    staffInChargeUid: string().required("Provide staff in charge to proceed."),
+    businessUid: string().required("You thought wrong.")
 });
 
 export const ShiftStaffsDTO = object(
     {
-        staffIds: array(string().required("Staffs required under shift.")).required("Select staff members to attach to shift.")
+        linkedStaffUids: array(string().required("Staffs required under shift.")).required("Select staff members to attach to shift.")
     }
 )
 
 export type TCreateShiftDTO = typeof CreateShiftDTO.__outputType;
 export type TShiftStaffsDTO = typeof ShiftStaffsDTO.__outputType;
 
-// not doing date checks because there could be a reason for creating 2 different shifts  occuring at the same time.
+const DAY_MAP: Record<string, number> = {
+    SUNDAY: 0,
+    MONDAY: 1,
+    TUESDAY: 2,
+    WEDNESDAY: 3,
+    THURSDAY: 4,
+    FRIDAY: 5,
+    SATURDAY: 6,
+}
 
-export async function createBaseShift(dto: TCreateShiftDTO) {
-    try {
-        return await prisma.baseShift.create({
-            data: {
-                uid: `BSH-${nanoid(12)}`,
-                ...dto
+export async function createShiftWithAssignments(input: TCreateShiftDTO & TShiftStaffsDTO) {
+    const {
+        name,
+        startTime,
+        endTime,
+        startDate,
+        endDate,
+        isWeekly,
+        repeatsOn,
+        staffInChargeUid,
+        linkedStaffUids,
+    } = input
 
-            }
-        });
-    } catch (error) {
+    // 1. figure out which dates shifts should be created on
+    const shiftDates = resolveShiftDates({ startDate, endDate, isWeekly, repeatsOn })
 
-        console.log("shift create ==> ", error)
-        throw new InternalError(error, "Failed to create shift.");
+    if (shiftDates.length === 0) {
+        throw new Error('No valid shift dates found for the given range and repeat config')
     }
-}
 
-export async function createShiftAssignments(baseShiftRecord: Awaited<ReturnType<typeof createBaseShift>>, staffIdDto: TShiftStaffsDTO) {
-    const assignments = staffIdDto.staffIds.map(function (uid) {
-        return {
-            uid: "BSA-"+nanoid(12),
-            businessUid: baseShiftRecord.businessUid,
-            baseShiftUid: baseShiftRecord.uid,
-            staffUid: uid,
-            assignedAt: baseShiftRecord.createdAt
-        }
+    // 2. create everything in a transaction
+    const result = await prisma.$transaction(async (tx) => {
+
+        // --- BaseShift ---
+        const baseShift = await tx.baseShift.create({
+            data: {
+                uid: "BS-" + nanoid(12),
+                name,
+                startTime,
+                endTime,
+                startDate: new Date(startDate),
+                endDate: endDate? new Date(endDate) :undefined ,
+                isWeekly,
+                // repeatsOn: repeatsOn?.length >0 ? repeatsOn : [] ,
+                repeatsOn: repeatsOn,
+                staffInChargeId: staffInChargeUid,
+                businessUid: input.businessUid
+            },
+        })
+
+        // --- ShiftAssignments + Shifts for each staff ---
+        const assignments = await Promise.all(
+            linkedStaffUids.map(async (staffUid) => {
+
+                // create the assignment
+                const assignment = await tx.shiftAssignment.create({
+                    data: {
+                        uid: "ASS-" + nanoid(12),
+                        baseShiftUid: baseShift.uid,
+                        staffUid,
+                        businessUid: input.businessUid,
+                    },
+                })
+
+                // create individual shift occurrences for this staff
+                await tx.shift.createMany({
+                    data: shiftDates.map((date) => ({
+                        uid: "SH-" + nanoid(12),
+                        baseShiftUid: baseShift.uid,
+                        businessUid: input.businessUid,
+                        shiftAssignmentUid: assignment.uid,
+                        staffUid,
+                        date: new Date(date),
+                        startTime,
+                        endTime,
+                        status: 'PENDING',
+                    })),
+                    skipDuplicates: true,
+                })
+
+                return assignment
+            })
+        )
+
+        return { baseShift, assignments }
     })
 
-
-    await prisma.shiftAssignment.createMany(
-        {
-            data: assignments
-        }
-    )
-
-    return assignments
+    return result
 }
 
 
-// work on this logic to properly handle multiple times and multiple users properly
-export async function createGranularShift(baseShiftRecord: Awaited<ReturnType<typeof createBaseShift>>, assignments: Awaited<ReturnType<typeof createShiftAssignments>>) {
-    const shifts =  assignments.map(function (assignment){
-        return {
-            uid: "SHF-"+nanoid(12),
-            baseShiftUid: baseShiftRecord.uid,
-            businessUid: baseShiftRecord.businessUid,
-            staffUid: assignment.staffUid,
-            shiftAssignmentUid: assignment.uid,
-            date
-        }
-    })
+function resolveShiftDates({
+    startDate,
+    endDate,
+    isWeekly,
+    repeatsOn,
+}: {
+    startDate: Date
+    endDate?: Maybe<Date>
+    isWeekly: boolean
+    repeatsOn?: string[]
+}): Date[] {
 
-    await prisma.shift.createMany()
+    // not repeating — just return the startDate as a single shift
+    if (!isWeekly || repeatsOn?.length === 0) {
+        return [startDate]
+    }
+
+    const targetDays = repeatsOn!.map((day) => DAY_MAP[day.toUpperCase()])
+
+    // get every day between startDate and endDate
+    const allDays = eachDayOfInterval({ start: startDate, end: endDate! })
+
+    // filter to only the days that match repeatsOn
+    return allDays.filter((day) => targetDays.includes(getDay(day)))
 }

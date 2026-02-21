@@ -2,15 +2,14 @@ import { Request, Response, NextFunction } from "express";
 import { InternalError } from "../../../helpers/errorHandler/errorHandler";
 import { success } from "../../../helpers/errorHandler/statusCodes";
 import { fetchUserProfileByUid, userProfileDAO } from "../get-profile/util";
+import { getBusinessIdFromRequest } from "../../../helpers/util";
 
 export async function GetUserProfileController(req: Request, res: Response, next: NextFunction) {
     try {
-        // Assume userProfileUid is available from JWT payload or session
-        const userProfileUid = (req as any).jwtPayload?.userProfileUid;
-        // if (!userProfileUid) throw new InternalError(null, "User profile UID missing in request.");
 
+        const businessId = getBusinessIdFromRequest(req)
 
-        const profile = await fetchUserProfileByUid(userProfileUid);
+        const profile = await fetchUserProfileByUid(businessId);
 
         const user = userProfileDAO(profile)
         success(res, user, "User profile fetched successfully");

@@ -4,7 +4,7 @@ import { prisma } from "../../../helpers/db/client";
 export const ListStaffDTO = object({
     limit: number().default(20),
     page: number().default(1),
-    profileUid: string().required("Business profile UID is required.")
+    businessUid: string().required("Business profile UID is required.")
 });
 
 export type TListStaffDTO = typeof ListStaffDTO.__outputType;
@@ -14,7 +14,7 @@ export async function listStaff(dto: TListStaffDTO) {
 
 
     const staff = await prisma.userProfile.paginate({
-        where: { parentUid: dto.profileUid },
+        where: { businessUid: dto.businessUid },
         include: { owner: true }
     }).withPages({ page: dto.page, limit: dto.limit, includePageCount: true });
 

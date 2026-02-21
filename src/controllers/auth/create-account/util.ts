@@ -73,8 +73,9 @@ export async function createUserRecord(dto: TAccountDTO) {
                 isBusinessOwner: true,
                 userProfiles: {
                     create: {
-                        uid: `BUS-${nanoid(12)}`,
+                        uid: `UPR-${nanoid(12)}`,
                         accessType: ACCESS_TYPES.owner,
+                        phoneNo: dto.phoneNo
                     }
                 }
             }
