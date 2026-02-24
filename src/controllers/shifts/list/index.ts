@@ -14,16 +14,17 @@ export async function ListShiftsController(req: Request, res: Response, next: Ne
 
         // console.log("user ", user)
 
+        
         const q = {
             type: bus.type,
-            profileUid: bus.busId || user
+            profileUid: bus.type == "owner" ? bus.busId : user
         }
 
         const dto = await validateDTO(ListShiftDTO, { ...req.query, ...q })
 
         const shifts_ = await getShiftRecords(dto)
 
-        const shifts = getShiftsDAO(shifts_)
+        const shifts = getShiftsDAO(shifts_, dto.timezone)
 
         success(res, shifts,"Fetched" )
     } catch (error) {

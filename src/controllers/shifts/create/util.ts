@@ -3,6 +3,7 @@ import { prisma } from "../../../helpers/db/client";
 import { InternalError } from "../../../helpers/errorHandler/errorHandler";
 import { nanoid } from "nanoid";
 import { eachDayOfInterval, getDay, isWithinInterval, format } from 'date-fns'
+import { DateTime } from 'luxon'
 
 export const CreateShiftDTO = object({
     name: string().required("Shift name is required."),
@@ -99,7 +100,9 @@ export async function createShiftWithAssignments(input: TCreateShiftDTO & TShift
                         businessUid: input.businessUid,
                         shiftAssignmentUid: assignment.uid,
                         staffUid,
-                        date: new Date(date),
+                        // date: toShiftDate(date),
+
+                        date: new Date(date).toUTCString(),
                         startTime,
                         endTime,
                         status: 'PENDING',
@@ -116,6 +119,12 @@ export async function createShiftWithAssignments(input: TCreateShiftDTO & TShift
 
     return result
 }
+
+// function toShiftDate(date: Date): Date {
+//   const d = new Date(date)
+//   d.setUTCHours(12, 0, 0, 0) // noon UTC, safe from timezone drift
+//   return d
+// }
 
 
 function resolveShiftDates({
@@ -143,3 +152,46 @@ function resolveShiftDates({
     // filter to only the days that match repeatsOn
     return allDays.filter((day) => targetDays.includes(getDay(day)))
 }
+
+
+
+
+// function resolveShiftDates({
+//   startDate,
+//   endDate,
+//   isWeekly,
+//   repeatsOn,
+// //   timezone,
+// }: {
+//   startDate: Date
+//   endDate: Date
+//   isWeekly: boolean
+//   repeatsOn: string[]
+// //   timezone: string
+// }): Date[] {
+
+//   if (!isWeekly || repeatsOn.length === 0) {
+//     return [startDate]
+//   }
+
+//   const targetDays = repeatsOn.map((day) => DAY_MAP[day.toUpperCase()])
+
+//   // build the interval in the given timezone
+//   const start = DateTime.fromJSDate(startDate, { zone: timezone }).startOf('day')
+//   const end = DateTime.fromJSDate(endDate, { zone: timezone }).endOf('day')
+
+//   const dates: Date[] = []
+//   let current = start
+
+//   while (current <= end) {
+//     // luxon weekday: 1=Monday ... 7=Sunday, so we convert to match our 0=Sunday map
+//     const jsDay = current.weekday === 7 ? 0 : current.weekday
+//     if (targetDays.includes(jsDay)) {
+//       // convert back to UTC Date for Prisma
+//       dates.push(current.toUTC().toJSDate())
+//     }
+//     current = current.plus({ days: 1 })
+//   }
+
+//   return dates
+// }
