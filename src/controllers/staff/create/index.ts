@@ -7,9 +7,9 @@ import { CreateStaffDTO, createStaff } from "./util";
 export async function CreateStaffController(req: Request, res: Response, next: NextFunction) {
     try {
 
-        const businessUid = getBusinessIdFromRequest(req)
+        const business = getBusinessIdFromRequest(req)
 
-        const dto = await validateDTO(CreateStaffDTO, { ...req.body, businessUid });
+        const dto = await validateDTO(CreateStaffDTO, { ...req.body, businessUid: business.busId });
         const staff = await createStaff(dto);
 
         success(res, { }, "Staff member created successfully");

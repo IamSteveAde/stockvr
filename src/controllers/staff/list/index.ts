@@ -5,8 +5,8 @@ import { listStaff, listStaffDao, ListStaffDTO } from "./util";
 
 export async function ListStaffController(req: any, res: any, next: any) {
     try {
-        const businessUid = getBusinessIdFromRequest(req);
-        const dto = await validateDTO(ListStaffDTO,{ ...req.query, businessUid });
+        const business = getBusinessIdFromRequest(req);
+        const dto = await validateDTO(ListStaffDTO,{ ...req.query, businessUid: business.busId });
 
         const staffList = await listStaff(dto);
 

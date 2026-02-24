@@ -7,8 +7,8 @@ import { CreateShiftDTO, createShiftWithAssignments, ShiftStaffsDTO } from "./ut
 export async function CreateShiftController(req: Request, res: Response, next: NextFunction) {
     try {
 
-        const businessUid = getBusinessIdFromRequest(req)
-        const dto_ = await validateDTO(CreateShiftDTO, {...req.body, businessUid});
+        const business = getBusinessIdFromRequest(req)
+        const dto_ = await validateDTO(CreateShiftDTO, {...req.body, businessUid: business.busId});
         const staff_ = await validateDTO(ShiftStaffsDTO, req.body)
 
         const shift = await createShiftWithAssignments({...dto_, ...staff_})

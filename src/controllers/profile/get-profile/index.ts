@@ -7,9 +7,9 @@ import { getBusinessIdFromRequest } from "../../../helpers/util";
 export async function GetUserProfileController(req: Request, res: Response, next: NextFunction) {
     try {
 
-        const businessId = getBusinessIdFromRequest(req)
+        const bus = getBusinessIdFromRequest(req)
 
-        const profile = await fetchUserProfileByUid(businessId);
+        const profile = await fetchUserProfileByUid(bus.busId);
 
         const user = userProfileDAO(profile)
         success(res, user, "User profile fetched successfully");
