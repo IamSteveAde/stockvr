@@ -47,6 +47,7 @@ model BusinessProfile {
   // users            Users[]
   products         Products[]
   auditTrails      AuditTrail[]
+  stockEntries     StockEntry[]
 }
 
 model UserProfile {
@@ -69,6 +70,7 @@ model UserProfile {
   shifts           Shift[]
   businessProfile  BusinessProfile?  @relation("BusinessProfileToUserProfile")
   auditTrails      AuditTrail[]
+  stockEntries     StockEntry[]
 }
 
 model BaseShift {
@@ -91,6 +93,7 @@ model BaseShift {
   linkedStaff     ShiftAssignment[]
   shifts          Shift[]
   auditTrails     AuditTrail[]
+  stockEntries    StockEntry[]
 }
 
 model ShiftAssignment {
@@ -150,13 +153,14 @@ model Products {
 }
 
 model Inventory {
-  id         Int      @id @default(autoincrement())
-  uid        String   @unique
-  productUid String   @unique
-  quantity   Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  product    Products @relation(references: [uid], fields: [productUid])
+  id           Int          @id @default(autoincrement())
+  uid          String       @unique
+  productUid   String       @unique
+  quantity     Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  product      Products     @relation(references: [uid], fields: [productUid])
+  stockEntries StockEntry[]
 }
 
 model AuditTrail {
@@ -173,4 +177,20 @@ model AuditTrail {
   product     Products?       @relation(fields: [productUid], references: [uid])
   business    BusinessProfile @relation(references: [uid], fields: [businessUid])
   createdAt   DateTime        @default(now())
+}
+
+model StockEntry {
+  id           Int             @id @default(autoincrement())
+  inventoryUid String
+  shiftUid     String
+  staffUid     String
+  businessUid  String
+  action       String
+  quantity     Int
+  reason       String?
+  createdAt    DateTime        @default(now())
+  staff        UserProfile     @relation(fields: [staffUid], references: [uid])
+  business     BusinessProfile @relation(fields: [businessUid], references: [uid])
+  shift        BaseShift       @relation(fields: [shiftUid], references: [uid])
+  linkedInventory Inventory @relation(fields: [inventoryUid], references: [uid])
 }
