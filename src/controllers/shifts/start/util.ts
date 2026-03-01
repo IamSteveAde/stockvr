@@ -60,7 +60,8 @@ export async function startShift(shift: Awaited<ReturnType<typeof getSpecificShi
         await t.shift.updateMany(
             {
                 where: {
-                    baseShiftUid: shift.baseShiftUid
+                    baseShiftUid: shift.baseShiftUid,
+                    date: shift.date
                 },
                 data: {
                     status: "Running"

@@ -54,7 +54,7 @@ export function createJwtToken({ accessType, permissions, userProfileUid, busine
 }
 
 export function getFirstLoginStatus(user: Awaited<ReturnType<typeof fetchUserByEmail>>) {
-    console.log(user)
+    // console.log(user)
 
     return { isFirstLogin: user.isFirstLogin, isBusinessOwner: user.isBusinessOwner, proceedToProfileCreation: user.isFirstLogin && user.isBusinessOwner }
 }

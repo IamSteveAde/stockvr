@@ -14,17 +14,17 @@ datasource db {
 }
 
 model Users {
-  id                Int              @unique @default(autoincrement())
-  uid               String           @unique
-  email             String           @unique
-  password          String
-  isBusinessOwner   Boolean          @default(false)
-  isFirstLogin      Boolean          @default(true)
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @default(now()) @updatedAt
-  pwdChangeAt       DateTime         @default(now())
-  verified          Boolean          @default(false)
-  userProfiles      UserProfile?
+  id              Int          @unique @default(autoincrement())
+  uid             String       @unique
+  email           String       @unique
+  password        String
+  isBusinessOwner Boolean      @default(false)
+  isFirstLogin    Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @default(now()) @updatedAt
+  pwdChangeAt     DateTime     @default(now())
+  verified        Boolean      @default(false)
+  userProfiles    UserProfile?
   // businessProfiles  BusinessProfile? @relation(fields: [businessProfileUid], references: [uid])
   // businessProfileId Int?
 }
@@ -45,6 +45,8 @@ model BusinessProfile {
   shiftAssignments ShiftAssignment[]
   shifts           Shift[]
   // users            Users[]
+  products         Products[]
+  auditTrails      AuditTrail[]
 }
 
 model UserProfile {
@@ -66,6 +68,7 @@ model UserProfile {
   shiftsInCharge   BaseShift[]       @relation("staffInCharge")
   shifts           Shift[]
   businessProfile  BusinessProfile?  @relation("BusinessProfileToUserProfile")
+  auditTrails      AuditTrail[]
 }
 
 model BaseShift {
@@ -78,7 +81,8 @@ model BaseShift {
   startDate       DateTime?
   endDate         DateTime?
   isWeekly        Boolean           @default(false)
-  repeatsOn       String[] //this is days of the week
+  repeatsOn       String[] //this is days of the week //for postgresql
+  // repeatsOn       Json //this is days/ of the week
   staffInChargeId String
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
@@ -86,6 +90,7 @@ model BaseShift {
   staffInCharge   UserProfile       @relation(fields: [staffInChargeId], references: [uid], name: "staffInCharge")
   linkedStaff     ShiftAssignment[]
   shifts          Shift[]
+  auditTrails     AuditTrail[]
 }
 
 model ShiftAssignment {
@@ -127,4 +132,45 @@ model Shift {
   @@unique([shiftAssignmentUid, date]) // one shift per assignment per day
   @@index([staffUid, date]) // fast lookups by staff and date
   @@index([baseShiftUid, date]) // fast lookups by base shift and date
+}
+
+model Products {
+  id          Int    @id @default(autoincrement())
+  uid         String @unique
+  name        String
+  unit        String
+  businessUid String
+
+  status      String          @default("Active")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  inventory   Inventory?
+  business    BusinessProfile @relation(references: [uid], fields: [businessUid])
+  auditTrails AuditTrail[]
+}
+
+model Inventory {
+  id         Int      @id @default(autoincrement())
+  uid        String   @unique
+  productUid String   @unique
+  quantity   Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  product    Products @relation(references: [uid], fields: [productUid])
+}
+
+model AuditTrail {
+  id          Int             @id @default(autoincrement())
+  staffUid    String
+  businessUid String
+  action      String
+  shiftUid    String?
+  productUid  String?
+  detail      String
+  entity      String
+  staff       UserProfile     @relation(fields: [staffUid], references: [uid])
+  shift       BaseShift?      @relation(fields: [shiftUid], references: [uid])
+  product     Products?       @relation(fields: [productUid], references: [uid])
+  business    BusinessProfile @relation(references: [uid], fields: [businessUid])
+  createdAt   DateTime        @default(now())
 }

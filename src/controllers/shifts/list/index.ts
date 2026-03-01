@@ -9,12 +9,7 @@ export async function ListShiftsController(req: Request, res: Response, next: Ne
 
         const bus = getBusinessIdFromRequest(req)
         const user = getProfileUidFromRequest(req)
-
-        // console.log("bus ", bus)
-
-        // console.log("user ", user)
-
-        
+ 
         const q = {
             type: bus.type,
             profileUid: bus.type == "owner" ? bus.busId : user

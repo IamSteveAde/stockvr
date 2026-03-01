@@ -7,6 +7,7 @@ import { profileRouter } from "./src/controllers/profile";
 import { staffRouter } from "./src/controllers/staff";
 import { businessRouter } from "./src/controllers/business";
 import { shiftRouter } from "./src/controllers/shifts";
+import { stockRouter } from "./src/controllers/stock";
 
 const app = express()
 app.use(cors())
@@ -18,6 +19,7 @@ app.use("/api/profile", profileRouter)
 app.use("/api/business/profile", businessRouter)
 app.use("/api/shift", shiftRouter)
 app.use("/api/staff", staffRouter)
+app.use("/api/stock", stockRouter)
 
 
 app.use("/", (req: Request, res: Response) => {
