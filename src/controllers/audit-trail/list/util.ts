@@ -11,7 +11,7 @@ export const ListAuditTrailDTO = object(
         startDate: date().default(startOfMonth(new Date())),
         endDate: date(),//.default(endOfMonth(new Date())),
         action: string().notRequired().oneOf(ACTIONS),
-        entity: string().required("Missing value of entity."),
+        // entity: string(), //.required("Missing value of entity."),
         businessUid: string().required("missing value of business")
     }
 )

@@ -33,6 +33,8 @@ export async function getSpecificShift(dto: TStartShiftDTO) {
         }
     )
 
+    // console.log(shift)
+
     if (!shift || !shift.baseShift) {
         throw new InternalError(null, "Shift selected not found.", HttpStatusCode.NotFound)
     }
@@ -48,7 +50,7 @@ export async function getSpecificShift(dto: TStartShiftDTO) {
     }
 
     if(shift.status.toLowerCase() != "pending"){
-        throw new InternalError(null, "shift already ended or cancelled.")
+        throw new InternalError(null, "Shift already ended or currently running.")
     }
 
     return shift

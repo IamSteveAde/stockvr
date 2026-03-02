@@ -37,6 +37,7 @@ export function getProductDao(record: Awaited<ReturnType<typeof addProductRecord
         updatedAt: record.updatedAt,
         unit: record.unit,
         status: record.status,
-        quantity: record?.inventory?.quantity || 0
+        quantity: record?.inventory?.quantity || 0,
+        inventoryUid: record.inventory?.uid || undefined
     }
 }

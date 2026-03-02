@@ -48,6 +48,9 @@ model BusinessProfile {
   products         Products[]
   auditTrails      AuditTrail[]
   stockEntries     StockEntry[]
+  endShiftEntries  EndShiftEntry[]
+  variances        Variance[]
+  shiftContexts    ShiftContext[]
 }
 
 model UserProfile {
@@ -94,6 +97,8 @@ model BaseShift {
   shifts          Shift[]
   auditTrails     AuditTrail[]
   stockEntries    StockEntry[]
+  endShiftEntries EndShiftEntry[]
+  variances       Variance[]
 }
 
 model ShiftAssignment {
@@ -131,6 +136,10 @@ model Shift {
   baseShift          BaseShift       @relation(fields: [baseShiftUid], references: [uid])
   assignment         ShiftAssignment @relation(fields: [shiftAssignmentUid], references: [uid])
   staff              UserProfile     @relation(fields: [staffUid], references: [uid])
+  variances          Variance[]
+  stockEntries       StockEntry[]
+  endShiftEntries    EndShiftEntry[]
+  shiftContext       ShiftContext?
 
   @@unique([shiftAssignmentUid, date]) // one shift per assignment per day
   @@index([staffUid, date]) // fast lookups by staff and date
@@ -153,14 +162,17 @@ model Products {
 }
 
 model Inventory {
-  id           Int          @id @default(autoincrement())
-  uid          String       @unique
-  productUid   String       @unique
-  quantity     Int          @default(0)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  product      Products     @relation(references: [uid], fields: [productUid])
-  stockEntries StockEntry[]
+  id              Int             @id @default(autoincrement())
+  uid             String          @unique
+  productUid      String          @unique
+  quantity        Int             @default(0)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  isLocked        Boolean         @default(true)
+  product         Products        @relation(references: [uid], fields: [productUid])
+  stockEntries    StockEntry[]
+  endShiftEntries EndShiftEntry[]
+  variances       Variance[]
 }
 
 model AuditTrail {
@@ -180,17 +192,63 @@ model AuditTrail {
 }
 
 model StockEntry {
-  id           Int             @id @default(autoincrement())
-  inventoryUid String
-  shiftUid     String
-  staffUid     String
-  businessUid  String
-  action       String
-  quantity     Int
-  reason       String?
-  createdAt    DateTime        @default(now())
-  staff        UserProfile     @relation(fields: [staffUid], references: [uid])
-  business     BusinessProfile @relation(fields: [businessUid], references: [uid])
-  shift        BaseShift       @relation(fields: [shiftUid], references: [uid])
-  linkedInventory Inventory @relation(fields: [inventoryUid], references: [uid])
+  id                 Int             @id @default(autoincrement())
+  inventoryUid       String
+  shiftUid           String
+  baseShiftUid       String
+  staffUid           String
+  businessUid        String
+  action             String
+  quantity           Int
+  reason             String?
+  createdAt          DateTime        @default(now())
+  staff              UserProfile     @relation(fields: [staffUid], references: [uid])
+  business           BusinessProfile @relation(fields: [businessUid], references: [uid])
+  baseShift          BaseShift       @relation(fields: [baseShiftUid], references: [uid])
+  staffInChargeShift Shift           @relation(fields: [shiftUid], references: [uid])
+  linkedInventory    Inventory       @relation(fields: [inventoryUid], references: [uid])
+}
+
+model EndShiftEntry {
+  id Int @unique @default(autoincrement())
+
+  shiftUid String
+
+  baseShiftUid       String
+  inventoryUid       String
+  count              Int
+  initialCount       Int
+  createdAt          DateTime        @default(now())
+  businessUid        String
+  business           BusinessProfile @relation(fields: [businessUid], references: [uid])
+  linkedInventory    Inventory       @relation(fields: [inventoryUid], references: [uid])
+  baseShift          BaseShift       @relation(fields: [baseShiftUid], references: [uid])
+  staffInChargeShift Shift           @relation(fields: [shiftUid], references: [uid])
+}
+
+model Variance {
+  id                 Int             @unique @default(autoincrement())
+  shiftUid           String
+  baseShiftUid       String
+  inventoryUid       String
+  actualCount        Int
+  expectedCount      Int
+  variance           Int
+  createdAt          DateTime        @default(now())
+  businessUid        String
+  business           BusinessProfile @relation(fields: [businessUid], references: [uid])
+  linkedInventory    Inventory       @relation(fields: [inventoryUid], references: [uid])
+  staffInChargeShift Shift           @relation(fields: [shiftUid], references: [uid])
+  baseShift          BaseShift       @relation(fields: [baseShiftUid], references: [uid])
+}
+
+model ShiftContext {
+  id                 Int             @id @default(autoincrement())
+  businessUid        String
+  shiftUid           String          @unique
+  itemAffectedCount  Int
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @default(now()) @updatedAt
+  business           BusinessProfile @relation(fields: [businessUid], references: [uid])
+  staffInChargeShift Shift           @relation(fields: [shiftUid], references: [uid])
 }

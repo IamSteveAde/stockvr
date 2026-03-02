@@ -1,8 +1,17 @@
 import { object, string } from "yup"
 import { prisma } from "../../../helpers/db/client";
 
-
-export const ACTIONS = ["Product Created", "Product Edited", "Product Archived", "Inventory Adjusted", "Stock In", "Stock Out", "Shift Started", "Shift Ended"]
+export const ACTIONS_KEY = {
+    productCreated: "Product Created",
+    productEdited: "Product Edited",
+    productArchived: "Product Archived",
+    inventoryAdjusted: "Inventory Adjusted",
+    stockIn: "Stock In",
+    stockOut: "Stock Out",
+    shiftStarted: "Shift Started",
+    shiftEnded: "Shift Ended"
+}
+export const ACTIONS = Object.values(ACTIONS_KEY)
 export const AddAuditTrailDTO = object(
     {
         businessUid: string().required("Missing value of business"),
@@ -10,6 +19,7 @@ export const AddAuditTrailDTO = object(
         action: string().oneOf(ACTIONS),
         shiftUid: string(),
         productUid: string(), 
+        entity: string().required("Missing value of entity"),
         detail: string().required("Missing value of detail")
 
     }

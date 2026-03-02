@@ -13,3 +13,5 @@ profileRouter.use(validateJwtToken) // Apply JWT validation to all profile route
 profileRouter.get("/me", GetUserProfileController)
 profileRouter.put("/me", UpdateUserProfileController)
 profileRouter.post("/me/business", CreateBusinessProfileController)
+
+

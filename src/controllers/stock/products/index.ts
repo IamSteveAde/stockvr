@@ -10,9 +10,9 @@ export const productRouter = Router();
 
 productRouter.use(validateJwtToken)
 
-productRouter.post("/create", AddProductController)
+productRouter.post("/create", AddProductController) // for owner
 productRouter.get("/list", ListProductController)
-productRouter.post("/status/update", ChangeStatusController)
+productRouter.post("/status/update", ChangeStatusController) //for owner
 productRouter.post("/entry", LogStockEntryController)
 
 

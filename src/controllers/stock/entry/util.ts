@@ -2,16 +2,17 @@ import { object, string, number } from "yup";
 import { prisma } from "../../../helpers/db/client";
 import { InternalError } from "../../../helpers/errorHandler/errorHandler";
 import { HttpStatusCode } from "axios";
+import { ACTIONS_KEY } from "../../audit-trail/add/util";
 
 export const StockEntryDTO = object(
     {
         shiftUid: string().required("Missing value of shift identifier."),
         staffUid: string().required("Missing value of staff identifier."),
-        businessUid: string(),
-        action: string().oneOf(["Stock In", "Stock Out"]).required("Missing value of action"),
+        action: string().oneOf([ACTIONS_KEY.stockIn, ACTIONS_KEY.stockOut]).required("Missing value of action"),
         inventoryUid: string().required("Missing value of product inventory identifier"),
         quantity: number().required("Missing value of quantity"),
-        reason: string().notRequired()
+        reason: string().notRequired(),
+        // baseShiftUid: string(),
     }
 )
 
@@ -25,13 +26,18 @@ export async function getShift(dto: { staffUid: string, shiftUid: string }) {
                 uid: dto.shiftUid
             },
             include: {
-                baseShift: true
+                baseShift: true,
+                staff: {
+                    include: {
+                        owner: true
+                    }
+                }
             }
         }
     )
 
     if (!shift) throw new InternalError(null, "Shift not found.")
-    if (shift.status != "Running") throw new InternalError(null, "Stock entry only done for running shifts.")
+    if (shift.status.toLowerCase() != "running") throw new InternalError(null, "Stock entry only done for running shifts.")
     if (shift.baseShift.staffInChargeId != dto.staffUid) throw new InternalError(null, "Only staff in charge can add a stock entry.")
     return shift
 }
@@ -53,13 +59,12 @@ export async function getStockInventory(uid: TStockEntryDTO["inventoryUid"]) {
 }
 
 export async function logStockEntry(dto: TStockEntryDTO, shift: Awaited<ReturnType<typeof getShift>>){
-    dto.businessUid = shift.businessUid
-    dto.shiftUid = shift.baseShiftUid
-
     await prisma.stockEntry.create(
         {
             data: {
-                ...dto
+                ...dto,
+                baseShiftUid: shift.baseShiftUid,
+                businessUid: shift.businessUid
             }
         }
     )
