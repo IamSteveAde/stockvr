@@ -30,27 +30,29 @@ model Users {
 }
 
 model BusinessProfile {
-  id               Int               @id @default(autoincrement())
-  uid              String            @unique
-  userUid          String            @unique
-  name             String
-  businessType     String
-  location         String
-  dailyStaffSize   String
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  businessOwner    UserProfile?      @relation(fields: [userUid], references: [uid], name: "BusinessProfileToUserProfile")
-  userProfiles     UserProfile[]     @relation("UserProfiletoBusiness")
-  baseShifts       BaseShift[]
-  shiftAssignments ShiftAssignment[]
-  shifts           Shift[]
+  id                      Int                      @id @default(autoincrement())
+  uid                     String                   @unique
+  userUid                 String                   @unique
+  name                    String
+  businessType            String
+  location                String
+  dailyStaffSize          String
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  businessOwner           UserProfile?             @relation(fields: [userUid], references: [uid], name: "BusinessProfileToUserProfile")
+  userProfiles            UserProfile[]            @relation("UserProfiletoBusiness")
+  baseShifts              BaseShift[]
+  shiftAssignments        ShiftAssignment[]
+  shifts                  Shift[]
   // users            Users[]
-  products         Products[]
-  auditTrails      AuditTrail[]
-  stockEntries     StockEntry[]
-  endShiftEntries  EndShiftEntry[]
-  variances        Variance[]
-  shiftContexts    ShiftContext[]
+  products                Products[]
+  auditTrails             AuditTrail[]
+  stockEntries            StockEntry[]
+  endShiftEntries         EndShiftEntry[]
+  variances               Variance[]
+  shiftContexts           ShiftContext[]
+  inventoryTotalVariances InventoryTotalVariance[]
+  inventories             Inventory[]
 }
 
 model UserProfile {
@@ -162,17 +164,20 @@ model Products {
 }
 
 model Inventory {
-  id              Int             @id @default(autoincrement())
-  uid             String          @unique
-  productUid      String          @unique
-  quantity        Int             @default(0)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  isLocked        Boolean         @default(true)
-  product         Products        @relation(references: [uid], fields: [productUid])
-  stockEntries    StockEntry[]
-  endShiftEntries EndShiftEntry[]
-  variances       Variance[]
+  id                      Int                     @id @default(autoincrement())
+  uid                     String                  @unique
+  businessUid             String?
+  productUid              String                  @unique
+  quantity                Int                     @default(0)
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  isLocked                Boolean                 @default(true)
+  product                 Products                @relation(references: [uid], fields: [productUid])
+  stockEntries            StockEntry[]
+  endShiftEntries         EndShiftEntry[]
+  variances               Variance[]
+  inventoryTotalVariances InventoryTotalVariance?
+  business                BusinessProfile?         @relation(references: [uid], fields: [businessUid])
 }
 
 model AuditTrail {
@@ -240,6 +245,18 @@ model Variance {
   linkedInventory    Inventory       @relation(fields: [inventoryUid], references: [uid])
   staffInChargeShift Shift           @relation(fields: [shiftUid], references: [uid])
   baseShift          BaseShift       @relation(fields: [baseShiftUid], references: [uid])
+}
+
+model InventoryTotalVariance {
+  id              Int             @unique @default(autoincrement())
+  inventoryUid    String          @unique
+  actualCount     Int
+  expectedCount   Int
+  variance        Int
+  createdAt       DateTime        @default(now())
+  businessUid     String
+  business        BusinessProfile @relation(fields: [businessUid], references: [uid])
+  linkedInventory Inventory       @relation(fields: [inventoryUid], references: [uid])
 }
 
 model ShiftContext {

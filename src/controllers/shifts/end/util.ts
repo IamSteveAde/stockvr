@@ -1,10 +1,9 @@
 import { object, string, number, array, date } from "yup";
 import { prisma } from "../../../helpers/db/client";
-import { cache } from "react";
 import { redis, SCOPE_KEY } from "../../../helpers/db/redis";
-import { getShift } from "../../stock/entry/util";
 import { InternalError } from "../../../helpers/errorHandler/errorHandler";
 import { verifyPassword } from "../../auth/create-account/util";
+import { Variance } from "../../../worker";
 
 export const EndShiftDTO = object(
     {
@@ -23,6 +22,7 @@ export const EndShiftDTO = object(
         clockOutTime: date().default(new Date())
     }
 )
+
 
 
 export type TEndShiftDTO = typeof EndShiftDTO.__outputType;
@@ -121,8 +121,9 @@ export async function updateInventory(dto: TEndShiftDTO) {
 // push all records to redis for end shift summary generation in the next 24hrs. Redis key should be something like "end-shift-entry:businessUid" and value should be an array of all end shift entries for that business. When generating the end shift summary, we can pop all records from redis and generate the summary based on those records. This way, we can avoid hitting the database multiple times when generating the summary and also ensure that we have a record of all end shift entries for a business in the last 24hrs.
 export async function pushtoRedis(businessUid: string, entries: Awaited<ReturnType<typeof addEndShiftEntry>>) {
     const key = SCOPE_KEY.endShiftEntry(businessUid)
-    
-    await redis.lpush(key, JSON.stringify(entries))
+    await redis.lpush(key, ...entries.map(entry => JSON.stringify(entry)))
+
+    await Variance.run(key)
 }
 
 export async function endShift( shift: Awaited<ReturnType<typeof getShift>>) {
@@ -135,4 +136,6 @@ export async function endShift( shift: Awaited<ReturnType<typeof getShift>>) {
             }
         }
     )
+
+    
 }

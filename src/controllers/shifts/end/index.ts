@@ -25,6 +25,7 @@ export async function EndShiftController(req: Request, res: Response, next: Next
         await endShift(shift)
 
      } catch (error) {
+        console.log(error)
         next(new InternalError(error))
     }
 }

@@ -22,7 +22,8 @@ export async function addProductRecord(dto: TAddPRoductDto) {
                 ...dto,
                 inventory:{
                     create: {
-                        uid: "INV-"+nanoid(12)
+                        uid: "INV-"+nanoid(12),
+                        businessUid: dto.businessUid
                     }
                 }
             }

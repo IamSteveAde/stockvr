@@ -40,10 +40,13 @@ export async function adjustInventory(dto: TAdjustInventoryDTO, product: Awaited
                     where: {
                         productUid: dto.productUid
                     },
-                    data: {
+                    data: dto.quantity <= product.inventory!.quantity ? {
+                        
                         quantity: {
                             decrement: value
                         }
+                    }: {
+                        quantity: 0
                     }
                 }
             )

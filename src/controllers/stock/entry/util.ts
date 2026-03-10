@@ -59,6 +59,7 @@ export async function getStockInventory(uid: TStockEntryDTO["inventoryUid"]) {
 }
 
 export async function logStockEntry(dto: TStockEntryDTO, shift: Awaited<ReturnType<typeof getShift>>){
+    dto.quantity = dto.action == ACTIONS_KEY.stockIn ? dto.quantity : -dto.quantity
     await prisma.stockEntry.create(
         {
             data: {
