@@ -128,8 +128,9 @@ model Shift {
   date               DateTime // the specific date of this shift occurrence
   startTime          String
   endTime            String
-  status             String          @default("PENDING")
+  status             String          @default("Pending")
   clockInTime        DateTime?
+  // startInventoryItemCount Json[]
   clockOutTime       DateTime?
   notes              String?
   createdAt          DateTime        @default(now())
@@ -177,7 +178,7 @@ model Inventory {
   endShiftEntries         EndShiftEntry[]
   variances               Variance[]
   inventoryTotalVariances InventoryTotalVariance?
-  business                BusinessProfile?         @relation(references: [uid], fields: [businessUid])
+  business                BusinessProfile?        @relation(references: [uid], fields: [businessUid])
 }
 
 model AuditTrail {
@@ -236,6 +237,9 @@ model Variance {
   shiftUid           String
   baseShiftUid       String
   inventoryUid       String
+  openingCount       Int             @default(0)
+  addedCount         Int             @default(0)
+  usedCount          Int             @default(0)
   actualCount        Int
   expectedCount      Int
   variance           Int
@@ -269,3 +273,15 @@ model ShiftContext {
   business           BusinessProfile @relation(fields: [businessUid], references: [uid])
   staffInChargeShift Shift           @relation(fields: [shiftUid], references: [uid])
 }
+
+// model ShiftContextItems {
+//   id                 Int             @id @default(autoincrement())
+//   businessUid        String
+//   shiftUid           String          @unique
+//   itemAffectedCount  Int
+//   // items              Json[]
+//   createdAt          DateTime        @default(now())
+//   updatedAt          DateTime        @default(now()) @updatedAt
+//   business           BusinessProfile @relation(fields: [businessUid], references: [uid])
+//   staffInChargeShift Shift           @relation(fields: [shiftUid], references: [uid])
+// }

@@ -16,7 +16,11 @@ export const SCOPE_KEY = {
         return "business:"+ uid 
     },
 
-    endShiftEntry: (businessUid: string)=>{
-        return `end-shift-entry:${businessUid}`
+    startShiftEntry: (businessUid: string, shiftId: string)=>{
+        return `start-shift-entry:${businessUid}:${shiftId}`
+    },
+
+    endShiftEntry: (businessUid: string, shiftId: string)=>{
+        return `end-shift-entry:${businessUid}:${shiftId}`
     }
 }

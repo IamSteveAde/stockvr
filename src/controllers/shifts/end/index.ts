@@ -21,7 +21,7 @@ export async function EndShiftController(req: Request, res: Response, next: Next
 
         const entries = await addEndShiftEntry(dto, shift, inventory)
         await updateInventory(dto)
-        await pushtoRedis(shift.businessUid, entries)
+        await pushtoRedis(shift.businessUid, dto.shiftUid, entries)
         await endShift(shift)
 
      } catch (error) {

@@ -102,10 +102,10 @@ export async function createShiftWithAssignments(input: TCreateShiftDTO & TShift
                         staffUid,
                         // date: toShiftDate(date),
 
-                        date: new Date(date).toUTCString(),
+                        date: new Date(date),
                         startTime,
                         endTime,
-                        status: 'PENDING',
+                        status: 'Pending',
                     })),
                     skipDuplicates: true,
                 })

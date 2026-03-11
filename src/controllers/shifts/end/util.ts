@@ -119,11 +119,13 @@ export async function updateInventory(dto: TEndShiftDTO) {
 }
 
 // push all records to redis for end shift summary generation in the next 24hrs. Redis key should be something like "end-shift-entry:businessUid" and value should be an array of all end shift entries for that business. When generating the end shift summary, we can pop all records from redis and generate the summary based on those records. This way, we can avoid hitting the database multiple times when generating the summary and also ensure that we have a record of all end shift entries for a business in the last 24hrs.
-export async function pushtoRedis(businessUid: string, entries: Awaited<ReturnType<typeof addEndShiftEntry>>) {
-    const key = SCOPE_KEY.endShiftEntry(businessUid)
-    await redis.lpush(key, ...entries.map(entry => JSON.stringify(entry)))
+export async function pushtoRedis(businessUid: string, shiftId : string, entries: Awaited<ReturnType<typeof addEndShiftEntry>>) {
+    const endShiftKey = SCOPE_KEY.endShiftEntry(businessUid, shiftId)
+    const startShiftKey = SCOPE_KEY.startShiftEntry(businessUid, shiftId)
+    // await redis.lpush(key, ...entries.map(entry => JSON.stringify(entry)))
 
-    await Variance.run(key)
+    await redis.set(endShiftKey, JSON.stringify(entries))
+    await Variance.run(endShiftKey, startShiftKey)
 }
 
 export async function endShift( shift: Awaited<ReturnType<typeof getShift>>) {

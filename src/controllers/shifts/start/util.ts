@@ -3,6 +3,7 @@ import { prisma } from "../../../helpers/db/client";
 import { InternalError } from "../../../helpers/errorHandler/errorHandler";
 import { verifyPassword } from "../../auth/create-account/util";
 import { HttpStatusCode } from "axios";
+import { redis, SCOPE_KEY } from "../../../helpers/db/redis";
 
 export const StartShiftDTO = object(
     {
@@ -84,4 +85,26 @@ export async function startShift(shift: Awaited<ReturnType<typeof getSpecificShi
     })
 
     
+}
+
+export async function getAllInventoryCountAtStartTime(businessUid: string, shiftId: string){
+    const data = await prisma.inventory.findMany(
+        {
+            where: {
+                businessUid,
+                product: {
+                    status: "Active"
+                }
+            },
+            select: {
+                uid: true,
+                productUid: true,
+                quantity: true
+            }
+        }
+    )
+
+    const startShiftKey = SCOPE_KEY.startShiftEntry(businessUid, shiftId)
+
+    await redis.set(startShiftKey, JSON.stringify(data) )
 }
