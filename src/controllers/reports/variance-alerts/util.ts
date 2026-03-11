@@ -1,4 +1,4 @@
-import {object, string, number, date} from "yup"
+import { object, string, number, date } from "yup"
 import { prisma } from "../../../helpers/db/client";
 
 export const VarianceAlertDTO = object(
@@ -16,7 +16,7 @@ export const VarianceAlertDTO = object(
 
 export type TVarianceAlertDTO = typeof VarianceAlertDTO.__outputType;
 
-export async function getVarianceAlerts (dto: TVarianceAlertDTO){
+export async function getVarianceAlerts(dto: TVarianceAlertDTO) {
     return await prisma.variance.paginate(
         {
             where: {
@@ -31,7 +31,7 @@ export async function getVarianceAlerts (dto: TVarianceAlertDTO){
             },
             include: {
                 linkedInventory: {
-                    include:{
+                    include: {
                         product: true
                     }
                 },
@@ -48,10 +48,10 @@ export async function getVarianceAlerts (dto: TVarianceAlertDTO){
     )
 }
 
-export function getVarianceAlertsDAO (data: Awaited<ReturnType<typeof getVarianceAlerts>>){
+export function getVarianceAlertsDAO(data: Awaited<ReturnType<typeof getVarianceAlerts>>) {
     return {
         meta: data[1],
-        alert: data[0].map(item=>{
+        alert: data[0].map(item => {
             return {
                 date: item.createdAt,
                 name: item.linkedInventory.product.name,
@@ -59,10 +59,24 @@ export function getVarianceAlertsDAO (data: Awaited<ReturnType<typeof getVarianc
                 variance: item.variance,
                 shift: item.baseShift.name,
                 shiftId: item.baseShift.uid,
-                severity: ""
+                severity: getSeverity(item.variance)
             }
         })
     }
 
+}
+
+function getSeverity(variance: number) {
+    if (0 > variance && variance >= -10) {
+        return "low"
+    }
+    else if (-10 > variance && variance > -15) {
+        return "medium"
+    }
+    else if (-15 > variance) {
+        return "high"
+    }
+
+    return "low"
 }
 
