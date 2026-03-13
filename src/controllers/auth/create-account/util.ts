@@ -74,7 +74,7 @@ export async function createUserRecord(dto: TAccountDTO) {
                 userProfiles: {
                     create: {
                         uid: `UPR-${nanoid(12)}`,
-                        accessType: ACCESS_TYPES.owner,
+                        accessType: ACCESS_TYPES.owner.toLowerCase(),
                         phoneNo: dto.phoneNo
                     }
                 }
@@ -83,7 +83,7 @@ export async function createUserRecord(dto: TAccountDTO) {
     )
 }
 
-export function generateRVerificationLink(userUid: string) {
+export function generateVerificationLink(userUid: string) {
     const token = createJwtToken({
         accessType: "verify-user",
         permissions: [],

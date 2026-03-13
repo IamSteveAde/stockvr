@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express"
 import { InternalError } from "../../../helpers/errorHandler/errorHandler"
 import { sendMail, validateDTO } from "../../../helpers/util"
-import { AccountDTO, createUserRecord, generateRVerificationLink, validateExistence } from "./util"
+import { AccountDTO, createUserRecord, generateVerificationLink, validateExistence } from "./util"
 import { success } from "../../../helpers/errorHandler/statusCodes"
 
 export async function CreateAccountController(req: Request, res: Response, next: NextFunction) {
@@ -12,7 +12,7 @@ export async function CreateAccountController(req: Request, res: Response, next:
 
         success(res, {}, "Account created, Kindly verify mail")
 
-        const link = generateRVerificationLink(user.uid)
+        const link = generateVerificationLink(user.uid)
 
         await sendMail(
             {

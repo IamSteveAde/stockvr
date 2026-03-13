@@ -10,7 +10,7 @@ export const CreateStaffDTO = object({
     name: string().required("Full name is required."),
     email: string().email("Invalid email address.").required("Email address is required."),
     phoneNo: string().required("Phone number is required."),
-    role: string().oneOf([ACCESS_TYPES.staff, ACCESS_TYPES.manager], "Invalid role").required("Role is required."),
+    role: string().oneOf([ACCESS_TYPES.staff.toLowerCase(), ACCESS_TYPES.manager.toLowerCase()], "Invalid role").required("Role is required."),
     businessUid: string().required("Business profile UID is required.")
 });
 
