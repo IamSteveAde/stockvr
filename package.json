@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "bun --watch index.ts",
-    "prestart": "npx prisma db push --accept-data-loss && sleep 1 && npx prisma generate"
+    "dbPush": "npx prisma db push --accept-data-loss && sleep 1 && npx prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.0",
