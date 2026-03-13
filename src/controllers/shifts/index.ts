@@ -4,6 +4,7 @@ import { validateJwtToken } from "../../helpers/middleware/validateJwtToken";
 import { ListShiftsController } from "./list";
 import { StartShiftController } from "./start";
 import { EndShiftController } from "./end";
+import { ListStaffRecentShiftController } from "./list-recent";
 
 
 export const shiftRouter = Router()
@@ -17,3 +18,6 @@ shiftRouter.get("/list", ListShiftsController)
 shiftRouter.post("/start", StartShiftController)
 
 shiftRouter.post("/end", EndShiftController)
+
+shiftRouter.get("/list/:type", ListStaffRecentShiftController)
+

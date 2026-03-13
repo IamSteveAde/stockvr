@@ -5,7 +5,7 @@ import { DateTime } from "luxon";
 
 export const ListShiftDTO = object(
     {
-        type: string().oneOf(Object.values(ACCESS_TYPES).map(i => { return i.toLowerCase() })).required("Missing user type"),
+        userType: string().oneOf(Object.values(ACCESS_TYPES).map(i => { return i.toLowerCase() })).required("Missing user type"),
         profileUid: string().required("profile missing ?"),
         page: number().default(1),
         timezone: string().default("Africa/Lagos")
@@ -21,7 +21,7 @@ export async function getShiftRecords(dto: TListShiftDTO) {
     console.log("q==> ", dto)
     let q: Record<any, any> = {}
 
-    switch (dto.type.toLowerCase()) {
+    switch (dto.userType.toLowerCase()) {
         case "owner":
             q.businessUid = dto.profileUid
             break
