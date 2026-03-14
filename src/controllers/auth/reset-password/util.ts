@@ -24,6 +24,6 @@ export function generateResetLink(userUid: string) {
         businessUid: undefined
     });
     const baseUri = SECRETS.FRONTEND_URL
-    const frontendUrl = `${baseUri}/reset-password`;
+    const frontendUrl = `${baseUri}/auth/reset-password`;
     return `${frontendUrl}?token=${token}`;
 }
