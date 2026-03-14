@@ -2,6 +2,7 @@ import { nanoid } from "nanoid";
 import { prisma } from "../../../helpers/db/client";
 import { object, string } from "yup";
 import { InternalError } from "../../../helpers/errorHandler/errorHandler";
+import { addDays } from "date-fns"
 
 const BusinessProfileDTO = object(
     {
@@ -15,7 +16,7 @@ const BusinessProfileDTO = object(
 
 export type TBusinessProfileDTO = typeof BusinessProfileDTO.__outputType
 
-export async function checkBusinessExists(dto: TBusinessProfileDTO){
+export async function checkBusinessExists(dto: TBusinessProfileDTO) {
     const exists = await prisma.businessProfile.findFirst(
         {
             where: {
@@ -24,18 +25,30 @@ export async function checkBusinessExists(dto: TBusinessProfileDTO){
         }
     )
 
-    if(exists){
+    if (exists) {
         throw new InternalError(null, "Business profile exists for user.")
     }
 }
 
 export async function createBusinessProfile(dto: TBusinessProfileDTO) {
+    const startAt = new Date()
+    const endAt = addDays(startAt, 15)
+
     await prisma.businessProfile.create(
         {
             data: {
-                uid: "BUS_"+nanoid(12),
+                uid: "BUS_" + nanoid(12),
                 // userUid: 
-                ...dto
+                ...dto,
+                subscription: {
+                    create: {
+
+                        subscriptionRef: "SUB_" + nanoid(12),
+                        startAt,
+                        endAt
+                    }
+
+                }
             }
         }
     )
