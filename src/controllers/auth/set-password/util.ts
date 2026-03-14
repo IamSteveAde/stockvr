@@ -12,19 +12,21 @@ export type TNewPasswordDTO = typeof NewPasswordDTO.__outputType;
 
 // Fetch user and user profile by userProfileUid
 export async function fetchUserAndProfileByUid(userProfileUid: string) {
-    const userProfile = await prisma.userProfile.findFirst(
+    const user = await prisma.users.findUnique(
         {
-            where: { uid: userProfileUid },
-            include: { owner: true }
+            where: {
+                uid: userProfileUid
+            }
         }
-    );
-    if (!userProfile || !userProfile.owner) throw new InternalError(null, "User profile not found.");
-    return userProfile;
+    )
+
+    if (!user) throw new InternalError(null, "User profile not found.");
+    return user;
 }
 
 // Update user password
 export async function updateUserPassword(profile: Awaited<ReturnType<typeof fetchUserAndProfileByUid>>, password: string) {
-    const userId = profile.owner.uid
+    const userId = profile.uid
     const hashed = await hashPassword({ password });
     await prisma.users.update({ where: { uid: userId }, data: { password: hashed , pwdChangeAt: new Date() } });
 }
