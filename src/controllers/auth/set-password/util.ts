@@ -20,6 +20,7 @@ export async function fetchUserAndProfileByUid(userProfileUid: string) {
         }
     )
 
+    
     if (!user) throw new InternalError(null, "User profile not found.");
     return user;
 }
