@@ -17,7 +17,7 @@ export async function CreateAccountController(req: Request, res: Response, next:
         await sendMail(
             {
                 to: dto.email,
-                subject: "Your Staff Login PIN",
+                subject: "New Account Verification",
                 html: `<p>Hey there,</p><p>Kindly verify your account using this link below: <b>${link}</b></p>`
             }
         )
