@@ -44,6 +44,9 @@ jobs:
           log "📦 Installing dependencies..."
           bun install 2>&1 | tee -a "$LOG_FILE"
 
+          log "db Sync in progress"
+          bun run dbPush
+
           log "🔄 Restarting application..."
           pm2 restart $APP_NAME 2>&1 | tee -a "$LOG_FILE"
 
