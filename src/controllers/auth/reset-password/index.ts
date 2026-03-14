@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { InternalError } from "../../../helpers/errorHandler/errorHandler";
-import { validateDTO } from "../../../helpers/util";
+import { sendMail, validateDTO } from "../../../helpers/util";
 import { success } from "../../../helpers/errorHandler/statusCodes";
 import { ResetPasswordDTO, fetchUserByEmailForReset, generateResetLink } from "./util";
 
@@ -10,10 +10,8 @@ export async function ResetPasswordController(req: Request, res: Response, next:
         const user = await fetchUserByEmailForReset(dto.email);
         const resetLink = generateResetLink(user.uid);
 
-        // TODO: Send email with resetLink to user.email
-        // sendEmail(user.email, resetLink);
-
-        success(res, { resetLink }, "Password reset link sent to your email");
+        success(res, {}, "Password reset link sent to your email");
+        await sendMail({ to: user.email, subject: "Password reset", html: `<p>Hey there,</p><p>Kindly reset your password to your account using this link below: <b>${resetLink}</b></p>` });
     } catch (error) {
         next(new InternalError(error));
     }
