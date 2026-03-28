@@ -11,6 +11,6 @@ const pool = new Pool({
 export const prisma = new PrismaClient(
     {
         adapter: new PrismaPg(pool),
-        log: ["query", "error", "warn"],
+        log: ["error", "warn"],
     }
 ).$extends(pagination())
