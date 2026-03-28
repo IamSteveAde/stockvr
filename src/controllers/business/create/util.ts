@@ -42,7 +42,6 @@ export async function createBusinessProfile(dto: TBusinessProfileDTO) {
                 ...dto,
                 subscription: {
                     create: {
-
                         subscriptionRef: "SUB_" + nanoid(12),
                         startAt,
                         endAt

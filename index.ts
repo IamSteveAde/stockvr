@@ -12,11 +12,14 @@ import { auditRouter } from "./src/controllers/audit-trail";
 import { reportRouter } from "./src/controllers/reports";
 import { dashboardRouter } from "./src/controllers/dashboard";
 import { adminRouter } from "./src/controllers/admin";
+import morgan from "morgan";
 
 const app = express()
 app.use(cors())
 app.use(express.urlencoded())
 app.use(express.json())
+
+app.use(morgan("dev"));
 
 app.use("/api/auth", authRouter)
 app.use("/api/profile", profileRouter)
