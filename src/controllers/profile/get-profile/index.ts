@@ -9,6 +9,13 @@ export async function GetUserProfileController(req: Request, res: Response, next
 
         const bus = getBusinessIdFromRequest(req)
 
+        console.log(bus)
+
+        if(!bus.busId){
+            next (new InternalError(undefined, "Business profile missing."))
+            return
+        }
+
         const profile = await fetchUserProfileByUid(bus.busId);
 
         const user = userProfileDAO(profile)
