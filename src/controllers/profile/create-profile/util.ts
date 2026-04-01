@@ -79,7 +79,7 @@ export async function updateFirstTimeLogin(uid: string, business: Awaited<Return
         await t.users.update({
             where: { uid: profile?.owner.uid },
             data: {
-                isFirstLogin: true
+                isFirstLogin: false
             }
         }
         )

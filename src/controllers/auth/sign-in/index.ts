@@ -9,7 +9,7 @@ export async function SignInController(req: Request, res: Response, next: NextFu
         const dto = await validateDTO(SignInDTO, req.body);
         const user = await fetchUserByEmail(dto.email);
 
-        console.log("user ==> ",user)
+        // console.log("user ==> ",user)
 
         await validateUserPassword(dto.password, user.password);
 
