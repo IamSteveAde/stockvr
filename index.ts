@@ -15,7 +15,9 @@ import { adminRouter } from "./src/controllers/admin";
 import morgan from "morgan";
 
 const app = express()
-app.use(cors())
+app.use(cors(
+    { origin: "http://localhost:3000" }
+))
 app.use(express.urlencoded())
 app.use(express.json())
 
