@@ -13,6 +13,7 @@ import { reportRouter } from "./src/controllers/reports";
 import { dashboardRouter } from "./src/controllers/dashboard";
 import { adminRouter } from "./src/controllers/admin";
 import morgan from "morgan";
+import { subscriptionRouter } from "./src/controllers/subscriptions";
 
 const app = express()
 app.use(cors(
@@ -33,6 +34,7 @@ app.use("/api/audit-trail", auditRouter) // Mount profile routes under /profile 
 app.use("/api/report", reportRouter)
 app.use("/api/dashboard", dashboardRouter)
 app.use("/api/admin", adminRouter)
+app.use("/api/subscription", subscriptionRouter)
 
 app.use("/", (req: Request, res: Response) => {
     res.status(200).json({ status: "success", message: "Welcome to StockVar Backend" })

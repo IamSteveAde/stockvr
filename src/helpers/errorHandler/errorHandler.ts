@@ -31,6 +31,7 @@ export class InternalError extends Error {
         // let statusCode = statusCode 
         if (generalError instanceof InternalError || generalError instanceof ValidationError) {
             message = generalError.message
+            statusCode = generalError?.statusCode  || HttpStatusCode.BadRequest
         }
         super(message || "Something went wrong, Kindly try again or contact support");
     }

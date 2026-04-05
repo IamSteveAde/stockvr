@@ -16,7 +16,7 @@ export function validateJwtToken(req: Request, res: Response, next: NextFunction
     }
     try {
         const decoded = jwt.verify(token, SECRETS.JWT_SECRET);
-        console.log("Decoded JWT payload:", decoded);
+        // console.log("Decoded JWT payload:", decoded);
         // Attach decoded token to request for use in controller
         (req as any).jwtPayload = decoded;
         
@@ -24,4 +24,15 @@ export function validateJwtToken(req: Request, res: Response, next: NextFunction
     } catch (err) {
         next(new InternalError(null, "Invalid or expired token.", HttpStatusCode.Unauthorized));
     }
+}
+
+export function validateBusinessPermission(req: Request, res: Response, next: NextFunction) {
+    const payload = (req as any).jwtPayload;
+
+    if (payload.accessType != "owner") {
+        return next(new InternalError(null, "Unauthorized Access", HttpStatusCode.Unauthorized))
+    }
+
+    next()
+    // return {busId : payload?.businessUid, type: payload.accessType}
 }

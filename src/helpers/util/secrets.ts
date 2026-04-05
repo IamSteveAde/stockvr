@@ -10,5 +10,13 @@ export const SECRETS = {
     REDIS_HOST: process.env.REDIS_HOST,
     REDIS_PORT: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : undefined,
     REDIS_TLS: process.env.REDIS_CERT ? { ca: process.env.REDIS_CERT } : undefined,
+    SUBBIT_URL: process.env.SUBBIT_URL,
+    SUBBIT_PLAN_ID: process.env.SUBBIT_PLAN_ID,
+    SUBBIT_BUSINESS_ID: process.env.SUBBIT_BUSINESS_ID,
+    SUBBIT_SECRET_KEY: process.env.SUBBIT_SECRET_KEY,
+    PAYSTACK_URL: process.env.PAYSTACK_URL ?? "https://api.paystack.co",
+    PAYSTACK_PLAN_ID: process.env.PAYSTACK_PLAN_ID,
+    PAYSTACK_CALLBACK: process.env.PAYSTACK_CALLBACK,
+    PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY,
     // Add other secrets here as needed
 };

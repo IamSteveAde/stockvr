@@ -53,7 +53,7 @@ model BusinessProfile {
   shiftContexts           ShiftContext[]
   inventoryTotalVariances InventoryTotalVariance[]
   inventories             Inventory[]
-  subscription            Subscriptions?
+  subscription            Subscriptions[]
 }
 
 model UserProfile {
@@ -278,24 +278,30 @@ model ShiftContext {
 model Subscriptions {
   id Int @id @default(autoincrement())
 
-  subscriptionRef    String          @unique
-  businessProfileUid String          @unique
-  startAt            DateTime        @default(now())
+  subscriptionRef    String   @unique
+  businessProfileUid String
+  startAt            DateTime @default(now())
   endAt              DateTime
-  isTrial            Boolean         @default(true)
-  isActive           Boolean         @default(true)
-  createdAt          DateTime        @default(now())
-  business           BusinessProfile @relation(fields: [businessProfileUid], references: [uid])
-  transactions       Transactions[]
+  isTrial            Boolean  @default(true)
+  isActive           Boolean  @default(true)
+  linkedCode         String?
+  linkedEmailToken   String?
+  createdAt          DateTime @default(now())
+
+  business     BusinessProfile @relation(fields: [businessProfileUid], references: [uid])
+  transactions Transactions[]
 }
 
 model Transactions {
   id              Int      @id @default(autoincrement())
   trxRef          String   @unique
   status          String   @default("Pending")
-  subscriptionRef String
-  createdAt       DateTime
-  updatedAt       DateTime
+  amount          Int      @default(0)
+  currency        String   @default("NGN")
+  source          String   @default("Paystack")
+  subscriptionRef String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt 
 
-  subscription Subscriptions @relation(fields: [subscriptionRef], references: [subscriptionRef])
+  subscription Subscriptions? @relation(fields: [subscriptionRef], references: [subscriptionRef])
 }

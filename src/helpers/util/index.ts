@@ -1,6 +1,8 @@
 import { ObjectSchema } from "yup";
 import nodemailer from "nodemailer";
-import { Request } from "express";
+import { NextFunction, Request } from "express";
+import { InternalError } from "../errorHandler/errorHandler";
+import { HttpStatusCode } from "axios";
 
 export async function validateDTO(DTOSchema: ObjectSchema<any, any>, params: any) {
     return await DTOSchema.validate(params)
@@ -28,14 +30,18 @@ export async function sendMail({ to, subject, html }: { to: string; subject: str
 }
 
 
-export function getProfileUidFromRequest(req: Request){
+export function getProfileUidFromRequest(req: Request) {
     const payload = (req as any).jwtPayload;
 
     return payload?.userProfileUid
 }
 
-export function getBusinessIdFromRequest(req: Request){
+export function getBusinessIdFromRequest(req: Request) {
     const payload = (req as any).jwtPayload;
 
-    return {busId : payload?.businessUid, type: payload.accessType}
+    if (payload.accessType != "owner") {
+        throw new InternalError(null, "Unauthorized Access", HttpStatusCode.Unauthorized)
+    }
+
+    return { busId: payload?.businessUid, type: payload.accessType }
 }
