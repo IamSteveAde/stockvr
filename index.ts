@@ -17,7 +17,7 @@ import { subscriptionRouter } from "./src/controllers/subscriptions";
 
 const app = express()
 app.use(cors(
-    { origin: "http://localhost:3000" }
+    { origin: ["http://localhost:3000", "https://stockvar.netlify.app"] }
 ))
 app.use(express.urlencoded())
 app.use(express.json())
@@ -37,7 +37,7 @@ app.use("/api/admin", adminRouter)
 app.use("/api/subscription", subscriptionRouter)
 
 app.use("/", (req: Request, res: Response) => {
-    res.status(200).json({ status: "success", message: "Welcome to StockVar Backend" })
+    res.status(404).json({ status: "Error", message: "Path not found" })
 })
 
 app.use(errorHandler)

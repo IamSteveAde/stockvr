@@ -6,21 +6,9 @@ import { nanoid } from "nanoid";
 export const CreateBusinessProfileDTO = object({
 
     name: string().required("Business name is required."),
-    businessType: string().oneOf([
-        "restaurant",
-        "cafe",
-        "lounge/bar",
-        "hotel Kitchen",
-        "cloud Kitchen",
-        "retail Experience Center"
-    ], "Invalid business type").required("Business type is required."),
+    businessType: string().required("Business type is required."),
     location: string().required("Business location is required."),
-    dailyStaffSize: string().oneOf([
-        "1-5",
-        "6-15",
-        "16-30",
-        "30+"
-    ], "Invalid daily staff size").required("Daily staff size is required."),
+    dailyStaffSize: string().required("Daily staff size is required."),
     userUid: string().required("Profile UID is required.")
 
 });

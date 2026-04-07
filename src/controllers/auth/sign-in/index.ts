@@ -12,12 +12,14 @@ export async function SignInController(req: Request, res: Response, next: NextFu
 
         await validateUserPassword(dto.password, user.password);
 
+        (user.verified)
+
         const { accessType, permissions } = getUserAccess(user);
 
-        if (user.userProfiles?.businessUid) {
-            const subscription = await getSubscriptionForBusiness(user.userProfiles!.businessUid);
+        // if (user.userProfiles?.businessUid) {
+        //     const subscription = await getSubscriptionForBusiness(user.userProfiles!.businessUid);
             
-        }
+        // }
 
         const token = createJwtToken({
             accessType,

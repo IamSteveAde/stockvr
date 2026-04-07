@@ -34,7 +34,7 @@ export async function createBusinessProfile(dto: TBusinessProfileDTO) {
     const startAt = new Date()
     const endAt = addDays(startAt, 15)
 
-    await prisma.businessProfile.create(
+    return await prisma.businessProfile.create(
         {
             data: {
                 uid: "BUS_" + nanoid(12),

@@ -19,8 +19,11 @@ export async function GetUserProfileController(req: Request, res: Response, next
         const profile = await fetchUserProfileByUid(bus.busId);
 
         const user = userProfileDAO(profile)
+
+        console.log("user ===> ", user)
         success(res, user, "User profile fetched successfully");
     } catch (error) {
+        console.log(error)
         next(new InternalError(error));
     }
 }
