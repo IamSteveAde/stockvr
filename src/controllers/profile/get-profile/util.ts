@@ -19,7 +19,7 @@ export function userProfileDAO(userProfile: Awaited<ReturnType<typeof fetchUserP
         status: userProfile?.businessOwner?.status,
         accessLevel: userProfile?.businessOwner?.accessType === 'owner' ? 'Full System Access' : '',
         lastPasswordChange: userProfile.businessOwner?.owner?.pwdChangeAt,
-        profileUrl: userProfile.businessOwner?.profileUrl || '',
+        profileUrl: userProfile.businessOwner?.profileUrl
         // Add more fields as needed for the frontend
     };
 }
