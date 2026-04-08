@@ -38,6 +38,9 @@ export async function createStaff(data: TCreateStaffDTO) {
             uid: `STAFF-${nanoid(24)}`,
             email: data.email,
             password: await hashPassword({password: pin}), // In production, hash this PIN
+            isFirstLogin: false,
+            verified: true,
+            
             userProfiles: {
                 create: {
                     uid: `PROFILE-${nanoid(12)}`,
@@ -46,7 +49,8 @@ export async function createStaff(data: TCreateStaffDTO) {
                     phoneNo: data.phoneNo,
                     name: data.name,
                     status: "Active",
-                    pin: pin
+                    pin: pin,
+
                 }
             }
         },

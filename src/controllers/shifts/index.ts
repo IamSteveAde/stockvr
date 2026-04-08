@@ -5,6 +5,7 @@ import { ListShiftsController } from "./list";
 import { StartShiftController } from "./start";
 import { EndShiftController } from "./end";
 import { ListStaffRecentShiftController } from "./list-recent";
+import { GetShiftLinkedStaffController } from "./get-linked-staff";
 
 
 export const shiftRouter = Router()
@@ -20,4 +21,8 @@ shiftRouter.post("/start", StartShiftController)
 shiftRouter.post("/end", EndShiftController)
 
 shiftRouter.get("/list/:type", ListStaffRecentShiftController)
+
+shiftRouter.get("/linked-staff", GetShiftLinkedStaffController)
+
+
 

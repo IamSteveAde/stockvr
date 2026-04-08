@@ -18,7 +18,7 @@ export type TListShiftDTO = typeof ListShiftDTO.__outputType;
 
 export async function getShiftRecords(dto: TListShiftDTO) {
 
-    console.log("q==> ", dto)
+    // console.log("q==> ", dto)
     let q: Record<any, any> = {}
 
     switch (dto.userType.toLowerCase()) {
@@ -47,6 +47,11 @@ export async function getShiftRecords(dto: TListShiftDTO) {
                             select: {
                                 linkedStaff: true
                             }
+                        },
+                        staffInCharge:{
+                            select: {
+                                name: true
+                            }
                         }
                     }
                 },
@@ -56,7 +61,8 @@ export async function getShiftRecords(dto: TListShiftDTO) {
                 endTime: true,
                 clockInTime: true,
                 clockOutTime: true,
-                status: true
+                status: true,
+                
 
 
             },
@@ -101,7 +107,8 @@ export function getShiftsDAO(records: Awaited<ReturnType<typeof getShiftRecords>
             endTime: shift.endTime,
             clockInTime: shift.clockInTime,
             clockOutTime: shift.clockOutTime,
-            status: shift.status
+            status: shift.status,
+            staffResponsible: shift.baseShift.staffInCharge.name
         }
     })
 

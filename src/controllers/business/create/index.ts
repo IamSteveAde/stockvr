@@ -8,7 +8,7 @@ import { success } from "../../../helpers/errorHandler/statusCodes"
 export async function CreateBusinessController(req: Request, res: Response, next: NextFunction) {
     try {
 
-        console.log("req.body --->", req.body)
+        // console.log("req.body --->", req.body)
         const profileUid = getProfileUidFromRequest(req)
 
         const dto = await validateDTO(CreateBusinessProfileDTO, { ...req.body, userUid: profileUid })

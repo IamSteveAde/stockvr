@@ -39,9 +39,9 @@ export function getProfileUidFromRequest(req: Request) {
 export function getBusinessIdFromRequest(req: Request) {
     const payload = (req as any).jwtPayload;
 
-    if (payload.accessType != "owner") {
-        throw new InternalError(null, "Unauthorized Access", HttpStatusCode.Unauthorized)
-    }
+    // if (payload.accessType != "owner") {
+    //     throw new InternalError(null, "Unauthorized Access", HttpStatusCode.Unauthorized)
+    // }
 
     return { busId: payload?.businessUid, type: payload.accessType }
 }

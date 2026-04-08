@@ -11,7 +11,7 @@ export async function ListShiftsController(req: Request, res: Response, next: Ne
         const user = getProfileUidFromRequest(req)
  
         const q = {
-            type: bus.type,
+            userType: bus.type,
             profileUid: bus.type == "owner" ? bus.busId : user
         }
 
@@ -21,8 +21,11 @@ export async function ListShiftsController(req: Request, res: Response, next: Ne
 
         const shifts = getShiftsDAO(shifts_, dto.timezone)
 
+        // console.log(shifts)
+
         success(res, shifts,"Fetched" )
     } catch (error) {
+        // console.log(error)
         next(new InternalError(error))
     }
 
