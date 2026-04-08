@@ -10,6 +10,7 @@ import { SECRETS } from "../../../helpers/util/secrets";
 
 export const AccountDTO = object(
     {
+        fullName: string().required("Name required"),
         email: string().email("Invalid email format.").required("Email missing."),
         phoneNo: string().required("Phone number missing."),
         password: string().min(8, "Password cannot be less than 8 characters..").required("Password missing"),
@@ -73,6 +74,7 @@ export async function createUserRecord(dto: TAccountDTO) {
                 isBusinessOwner: true,
                 userProfiles: {
                     create: {
+                        name: dto.fullName,
                         uid: `UPR-${nanoid(12)}`,
                         accessType: ACCESS_TYPES.owner.toLowerCase(),
                         phoneNo: dto.phoneNo
