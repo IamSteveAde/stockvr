@@ -17,7 +17,7 @@ import { subscriptionRouter } from "./src/controllers/subscriptions";
 
 const app = express()
 app.use(cors(
-    { origin: ["http://localhost:3000", "https://stockvar.netlify.app"] }
+    { origin: ["http://localhost:3000", "https://stockvar.netlify.app", "https://stockvar.app"] }
 ))
 app.use(express.urlencoded())
 app.use(express.json())
