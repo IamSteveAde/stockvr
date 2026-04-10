@@ -8,7 +8,8 @@ export const ListShiftDTO = object(
         userType: string().oneOf(Object.values(ACCESS_TYPES).map(i => { return i.toLowerCase() })).required("Missing user type"),
         profileUid: string().required("profile missing ?"),
         page: number().default(1),
-        timezone: string().default("Africa/Lagos")
+        timezone: string().default("Africa/Lagos"),
+        type: string().oneOf(["Pending", "Running", "Ended"]).notRequired()
 
     }
 )
@@ -29,6 +30,10 @@ export async function getShiftRecords(dto: TListShiftDTO) {
         case "manager":
         case "staff":
             q.staffUid = dto.profileUid
+    }
+
+    if(dto.type){
+        q.status = dto.type
     }
 
 
@@ -52,7 +57,8 @@ export async function getShiftRecords(dto: TListShiftDTO) {
                             select: {
                                 name: true
                             }
-                        }
+                        },
+                        uid: true
                     }
                 },
                 uid: true,
@@ -68,7 +74,9 @@ export async function getShiftRecords(dto: TListShiftDTO) {
             },
 
             orderBy: [
-                { date: "asc" }
+                
+                { status: "desc" },
+                { date: "asc" },
             ]
         }
     ).withPages(
@@ -108,7 +116,8 @@ export function getShiftsDAO(records: Awaited<ReturnType<typeof getShiftRecords>
             clockInTime: shift.clockInTime,
             clockOutTime: shift.clockOutTime,
             status: shift.status,
-            staffResponsible: shift.baseShift.staffInCharge.name
+            staffResponsible: shift.baseShift.staffInCharge.name,
+            baseShiftUid: shift.baseShift.uid
         }
     })
 

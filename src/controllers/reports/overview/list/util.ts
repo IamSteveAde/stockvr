@@ -109,6 +109,8 @@ export async function getInventoryTotalVarianceByShift(dto: TOverviewListDTO) {
         }
     )
 
+    console.log(data)
+
     return data
 }
 

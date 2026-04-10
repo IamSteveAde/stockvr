@@ -17,6 +17,24 @@ export const VarianceAlertDTO = object(
 export type TVarianceAlertDTO = typeof VarianceAlertDTO.__outputType;
 
 export async function getVarianceAlerts(dto: TVarianceAlertDTO) {
+
+    const q = {
+        businessUid: dto.businessUid,
+        createdAt: {
+            gte: dto.startDate,
+            lte: dto.endDate
+        },
+        variance: getSeverityQuery(dto.severity),
+        linkedInventory: dto.t ? {
+            product: {
+                name: {
+                    contains: dto.t
+                }
+            }
+        } : undefined
+
+    }
+
     return await prisma.variance.paginate(
         {
             where: {
@@ -25,9 +43,16 @@ export async function getVarianceAlerts(dto: TVarianceAlertDTO) {
                     gte: dto.startDate,
                     lte: dto.endDate
                 },
-                variance: {
-                    lt: 0
-                }
+                variance: getSeverityQuery(dto.severity),
+                linkedInventory: dto.t ? {
+                    product: {
+                        name: {
+                            contains: dto.t,
+                            mode: "insensitive"
+                        }
+                    }
+                } : undefined
+
             },
             include: {
                 linkedInventory: {
@@ -66,17 +91,25 @@ export function getVarianceAlertsDAO(data: Awaited<ReturnType<typeof getVariance
 
 }
 
-function getSeverity(variance: number) {
-    if (0 > variance && variance >= -10) {
-        return "low"
-    }
-    else if (-10 > variance && variance > -15) {
-        return "medium"
-    }
-    else if (-15 > variance) {
-        return "high"
-    }
+function getSeverity(variance: number): "low" | "medium" | "high" {
+    if (variance >= -10) return "low"    // 0 to -10
+    if (variance >= -15) return "medium" // -10 to -15
+    return "high"                        // below -15
+}
 
-    return "low"
+function getSeverityQuery(x: TVarianceAlertDTO["severity"]) {
+  switch (x) {
+    case "low":
+      return { gte: -10, lt: 0 }      // 0 to -10
+
+    case "medium":
+      return { gte: -15, lt: -10 }    // -10 to -15
+
+    case "high":
+      return { lt: -15 }              // below -15
+
+    default:
+      return undefined
+  }
 }
 
