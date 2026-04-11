@@ -24,25 +24,57 @@ export async function getProductVarianceRecords(dto: TProductVariancetDTO) {
                             gte: dto.startDate,
                             lte: dto.endDate
                         },
-                        variance: {
-                            lt: 0
-                        }
+                        // variance: {
+                        //     {lt: 0}
+                        // }
                     }
                 }
             },
-            include: {
-                product: true,
+            select: {
+                product: {
+                    select: {
+                        name: true
+                    }
+                },
+                _count: {
+                    select: {variances: true}
+                },
                 variances: {
-                    where: {
-                        variance: {
-                            lt: 0
-
-                        }
-                    },
-                    // include: {
-                    //     baseShift: true
-                    // }
+                    select: {
+                        baseShift: {
+                            select: {
+                                _count: {
+                                    select: {
+                                        linkedStaff: true
+                                    }
+                                }
+                            }
+                        },
+                        "id": true,
+                        "shiftUid": true,
+                        "baseShiftUid": true,
+                        "inventoryUid": true,
+                        "openingCount": true,
+                        "addedCount": true,
+                        "usedCount": true,
+                        "actualCount": true,
+                        "expectedCount": true,
+                        "variance": true,
+                        "createdAt": true,
+                        "businessUid": true
+                    }
                 }
+                // {
+                //     // where: {
+                //     //     variance: {
+                //     //         lt: 0
+
+                //     //     }
+                //     // },
+                //     // include: {
+                //     //     baseShift: true
+                //     // }
+                // }
             }
         }
     ).withPages(
@@ -61,7 +93,23 @@ export function getProductVarianceRecordsDAO(data: Awaited<ReturnType<typeof get
         pv: data[0].map(item=>{
             return {
                 name: item.product.name,
-                variance: item.variances
+                variance: item.variances.map(x=>{
+                    return {
+                        "id": x.id,
+                        "shiftUid": x.shiftUid,
+                        "baseShiftUid": x.baseShiftUid,
+                        "inventoryUid": x.inventoryUid,
+                        "openingCount": x.openingCount,
+                        "addedCount": x.addedCount,
+                        "usedCount": x.usedCount,
+                        "actualCount": x.actualCount,
+                        "expectedCount": x.expectedCount,
+                        "variance": x.variance,
+                        "createdAt": x.createdAt,
+                        "businessUid": x.businessUid,
+                        linkedStaffCount: x.baseShift._count.linkedStaff
+                    }
+                })
             }
         })
     }

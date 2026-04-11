@@ -10,6 +10,8 @@ export async function LogStockEntryController(req: Request, res: Response, next:
         const staffUid = getProfileUidFromRequest(req)
         const dto = await  validateDTO(StockEntryDTO, {...req.body, staffUid})
 
+        console.log(dto)
+
         const shift = await getShift({staffUid, shiftUid: dto.shiftUid})
 
         const inventory = await getStockInventory(dto.inventoryUid)

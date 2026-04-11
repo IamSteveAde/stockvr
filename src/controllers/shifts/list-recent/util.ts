@@ -37,7 +37,8 @@ export async function getStaffShiftRecords(dto: TListShiftDTO) {
                             select: {
                                 linkedStaff: true
                             }
-                        }
+                        },
+                        staffInCharge: true
                     }
                 },
                 uid: true,

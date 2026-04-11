@@ -205,6 +205,7 @@ export namespace Variance {
 
             while (proceedRun) {
                 const variance = await process(endEntryKey, startEntryKey)
+                console.log("varinac ==> ",variance)
                 if (variance.length > 0) {
                     // await logVariance(variance)
                     await setStatus(endEntryKey, "stopped")

@@ -16,6 +16,22 @@ export const StartShiftDTO = object(
 
 export type TStartShiftDTO = typeof StartShiftDTO.__outputType;
 
+
+export async function checkExistingShiftRunning(staffUid: string){
+    const runningShift = await prisma.shift.findFirst(
+        {
+            where: {
+                staffUid,
+                status: "Running"
+            }
+        }
+    )
+
+    if(runningShift){
+        throw new InternalError("Cannot run 2 shifts simultaneously.")
+    }
+}
+
 export async function getSpecificShift(dto: TStartShiftDTO) {
     const shift = await prisma.shift.findFirst(
         {

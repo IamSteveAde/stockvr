@@ -89,16 +89,6 @@ export async function getShiftRecords(dto: TListShiftDTO) {
 }
 
 function formatShiftForDisplay(date: Date, timezone: string) {
-    // const localDate = DateTime.fromJSDate(date, { zone: timezone })
-
-    //   return {
-    //     ...shift,
-    //     localDate: localDate.toFormat('yyyy-MM-dd'),         // "2025-02-17"
-    //     localDay: localDate.toFormat('EEEE'),                // "Monday"
-    //     clockIn: shift.clockInTime
-    //       ? DateTime.fromJSDate(shift.clockInTime, { zone: shift.timezone }).toFormat('hh:mm a')
-    //       : null,
-    //   }
 
     return DateTime.fromJSDate(date, {zone: timezone})
 }
