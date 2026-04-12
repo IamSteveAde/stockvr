@@ -61,19 +61,19 @@ export async function createShiftWithAssignments(input: TCreateShiftDTO & TShift
     // 2. create everything in a transaction
     const result = await prisma.$transaction(async (tx) => {
 
-        console.log({
-                uid: "BS-" + nanoid(12),
-                name,
-                startTime,
-                endTime,
-                startDate: new Date(startDate),
-                endDate: endDate? new Date(endDate) :undefined ,
-                isWeekly,
-                // repeatsOn: repeatsOn?.length >0 ? repeatsOn : [] ,
-                repeatsOn: repeatsOn,
-                staffInChargeId: staffInChargeUid,
-                businessUid: input.businessUid
-            })
+        // console.log({
+        //         uid: "BS-" + nanoid(12),
+        //         name,
+        //         startTime,
+        //         endTime,
+        //         startDate: new Date(startDate),
+        //         endDate: endDate? new Date(endDate) :undefined ,
+        //         isWeekly,
+        //         // repeatsOn: repeatsOn?.length >0 ? repeatsOn : [] ,
+        //         repeatsOn: repeatsOn,
+        //         staffInChargeId: staffInChargeUid,
+        //         businessUid: input.businessUid
+        //     })
 
         // --- BaseShift ---
         const baseShift = await tx.baseShift.create({
