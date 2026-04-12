@@ -11,6 +11,8 @@ export async function ListStaffController(req: any, res: any, next: any) {
         const staffList = await listStaff(dto);
 
         const staffData = listStaffDao(staffList);
+
+        // console.log(staffData)
         success(res, staffData , "Staff members retrieved successfully");
     } catch (error) {
         console.error("Error in ListStaffController:", error);
