@@ -12,7 +12,7 @@ export async function SignInController(req: Request, res: Response, next: NextFu
 
         await validateUserPassword(dto.password, user.password);
 
-        (user.verified)
+        // (user.verified)
 
         const { accessType, permissions } = getUserAccess(user);
 

@@ -4,9 +4,12 @@ import { GetBusinessController } from "./restaurants";
 import { GetSubscriptionsController } from "./subscriptions/list";
 import { SubscriptionMetricsController } from "./subscriptions/metric";
 import { UsersMetricsController } from "./users";
+import { validateJwtToken } from "../../helpers/middleware/validateJwtToken";
 
 
 export const adminRouter = Router();
+
+adminRouter.use(validateJwtToken)
 
 adminRouter.get("/overview/:type", OverviewController)
 adminRouter.get("/businesses", GetBusinessController)

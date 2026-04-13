@@ -37,7 +37,16 @@ export async function getBusinesses(dto: TRestaurantDTO) {
                 },
                 location: true,
                 businessType: true,
-                subscription: true
+                subscription: {
+                    where: {
+                        isActive: true,
+                        endAt: {
+                            gte: new Date()
+                        }
+                        
+                    },
+                    take: 1
+                }
             },
 
 
@@ -63,7 +72,7 @@ export function getBusinessesDAO(data: Awaited<ReturnType<typeof getBusinesses>>
                     email: item.businessOwner?.owner.email
                 },
                 staffSize: item._count.userProfiles,
-                subscriptionStatus: item.subscription?.isTrial ? "Trial" : item.subscription?.isActive ? "Active" : "Expired"
+                subscriptionStatus: item.subscription[0]?.isTrial ? "Trial" : item.subscription[0]?.isActive ? "Active" : "Expired"
             }
         })
     }
