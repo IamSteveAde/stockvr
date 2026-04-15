@@ -4,11 +4,12 @@ import { getProfileUidFromRequest, validateDTO } from "../../../helpers/util"
 import { CreateBusinessProfileDTO, updateFirstTimeLogin } from "../../profile/create-profile/util"
 import { checkBusinessExists, createBusinessProfile } from "./util"
 import { success } from "../../../helpers/errorHandler/statusCodes"
+import { createJwtToken } from "../../auth/sign-in/util"
+import { PERMISSIONS } from "../../../helpers/accessTypes"
 
 export async function CreateBusinessController(req: Request, res: Response, next: NextFunction) {
     try {
 
-        // console.log("req.body --->", req.body)
         const profileUid = getProfileUidFromRequest(req)
 
         const dto = await validateDTO(CreateBusinessProfileDTO, { ...req.body, userUid: profileUid })
@@ -17,12 +18,24 @@ export async function CreateBusinessController(req: Request, res: Response, next
 
         const business = await createBusinessProfile(dto)
 
+        const token = createJwtToken({
+            accessType: "owner",
+            permissions: PERMISSIONS["owner"],
+            userProfileUid: profileUid,
+            businessUid: business?.uid
+        });
+
         await updateFirstTimeLogin(profileUid, business)
 
-        success(res, {}, "Business profile successfully updated.")
-        return 
+        // return new token here.
+
+        success(res, {token}, "Business profile successfully updated.")
+        return
 
     } catch (error) {
+
+        console.log(error)
+
         next(new InternalError(error))
     }
 }
