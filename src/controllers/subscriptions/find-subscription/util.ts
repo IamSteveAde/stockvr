@@ -11,6 +11,9 @@ export async function getSubscriptionForBusiness(businessUid: string){
                 gte: new Date()
             }
         },
+        orderBy: {
+            createdAt: "desc"
+        },
         select: {
             subscriptionRef: true,
             startAt: true,
