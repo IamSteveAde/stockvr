@@ -10,12 +10,15 @@ export async function getSubscriptionForBusiness(businessUid: string){
             endAt: {
                 gte: new Date()
             }
+        },
+        select: {
+            subscriptionRef: true,
+            startAt: true,
+            endAt: true,
+            isTrial: true,
+            isActive: true
         }
     })
-
-    if (!subscription) {
-        throw new InternalError(null, "Active subscription not found for this business.", HttpStatusCode.PaymentRequired)
-    }
 
     return subscription
 }

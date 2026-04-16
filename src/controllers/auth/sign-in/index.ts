@@ -15,21 +15,20 @@ export async function SignInController(req: Request, res: Response, next: NextFu
         // (user.verified)
 
         const { accessType, permissions } = getUserAccess(user);
-
-        // if (user.userProfiles?.businessUid) {
-        //     const subscription = await getSubscriptionForBusiness(user.userProfiles!.businessUid);
-            
-        // }
+        let subscription
+        if (user.userProfiles?.businessUid) {
+            subscription = await getSubscriptionForBusiness(user.userProfiles!.businessUid);
+        }
 
         const token = createJwtToken({
             accessType,
             permissions,
             userProfileUid: user.userProfiles!.uid,
             businessUid: user?.userProfiles?.business?.uid
-        });
+        }); 
 
         const d = getFirstLoginStatus(user)
-        success(res, { token, accessType, proceedToProfileCreation: d.proceedToProfileCreation, isFirstLogin: d.isFirstLogin }, "Sign in successful");
+        success(res, { token, accessType, proceedToProfileCreation: d.proceedToProfileCreation, isFirstLogin: d.isFirstLogin, subscription }, "Sign in successful");
     } catch (error) {
         next(new InternalError(error));
     }

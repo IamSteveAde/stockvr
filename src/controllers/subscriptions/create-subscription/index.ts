@@ -10,6 +10,8 @@ export async function InitializeSubscriptionController(req: Request, res: Respon
         // const dto = await validateDTO(createSubscriptionDTO, req.body) as TCreateSubscriptionDTO
         const businessProfileUid = getBusinessIdFromRequest(req)
 
+        // console.log("buss ===>" , businessProfileUid, req.jwtPayload)
+
         const business = await getBusinessProfileByUid(businessProfileUid.busId) // to check if business profile exists. If not, it will throw an error and stop the process.
 
         const subscriptionPayload = constructSubscription(businessProfileUid.busId, false)
@@ -29,6 +31,8 @@ export async function InitializeSubscriptionController(req: Request, res: Respon
         })
 
     } catch (error) {
+
+        console.log(error)
         next(new InternalError(error))
     }
 }
