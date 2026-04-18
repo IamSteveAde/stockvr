@@ -61,7 +61,6 @@ export async function getBusinessProfileByUid(uid: string) {
 }
 
 
-//  for paystack direct integration
 
 export const createSubscriptionDTO = object(
     {
