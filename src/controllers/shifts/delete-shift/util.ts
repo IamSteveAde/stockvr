@@ -5,7 +5,8 @@ import { HttpStatusCode } from "axios";
 
 export const DeleteShiftDTO = object(
     {
-        shiftUid:string().required("Missing value of shift identifier")
+        shiftUid:string().required("Missing value of shift identifier"),
+        businessUid:string().required("Missing value of shift identifier")
     }
 )
 
@@ -15,10 +16,22 @@ export async function getSpecificShift(dto: TDeleteShiftDTO){
     const exists = await prisma.shift.findFirst(
         {
             where: {
-                uid: dto.shiftUid
+                uid: dto.shiftUid,
+                businessUid: dto.businessUid
             },
-            include: {
-                baseShift: true
+            select: {
+                uid: true,
+                status: true,
+                baseShift:{
+                    select: {
+                        uid: true,
+                        _count: {
+                            select: {
+                                shifts: true
+                            }
+                        }
+                    }
+                }
             }
         }
     )
@@ -39,6 +52,42 @@ export async function deleteShift(dto: Awaited<ReturnType<typeof getSpecificShif
 
     // there's a comma
     // what if shift is on multiple days and some have already started ? would it delete all shifts ?
+
+
+    if(dto.baseShift._count.shifts < 2){
+
+        console.log("entered here === {}")
+
+        await prisma.baseShift.delete(
+
+            {
+                where: {
+                    uid: dto.baseShift.uid
+                }
+            }
+        )
+
+        // await prisma.$transaction(async t=>{
+        //     await t.shift.delete(
+        //     {
+        //         where: {
+        //             uid: dto.baseShift.uid
+        //         },
+                
+        //     }
+        // )  
+        // })
+
+        return
+    }
+
+    await prisma.shift.delete(
+        {
+            where: {
+                uid: dto.uid
+            }
+        }
+    )
 
     
 

@@ -36,3 +36,16 @@ export function validateBusinessPermission(req: Request, res: Response, next: Ne
     next()
     // return {busId : payload?.businessUid, type: payload.accessType}
 }
+
+export function validateBusinessManagerPermission(req: Request, res: Response, next: NextFunction) {
+    const payload = (req as any).jwtPayload;
+
+    console.log(payload)
+
+    if (!["owner", "manager"].includes(payload.accessType) ) {
+        return next(new InternalError(null, "Unauthorized Access for this route", HttpStatusCode.Unauthorized))
+    }
+
+    next()
+    // return {busId : payload?.businessUid, type: payload.accessType}
+}

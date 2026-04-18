@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { CreateShiftController } from "./create";
-import { validateJwtToken } from "../../helpers/middleware/validateJwtToken";
+import { validateBusinessManagerPermission, validateJwtToken } from "../../helpers/middleware/validateJwtToken";
 import { ListShiftsController } from "./list";
 import { StartShiftController } from "./start";
 import { EndShiftController } from "./end";
 import { ListStaffRecentShiftController } from "./list-recent";
 import { GetShiftLinkedStaffController } from "./get-linked-staff";
+import { DeleteShiftController } from "./delete-shift";
 
 
 export const shiftRouter = Router()
@@ -23,6 +24,10 @@ shiftRouter.post("/end", EndShiftController)
 shiftRouter.get("/list/:type", ListStaffRecentShiftController)
 
 shiftRouter.get("/linked-staff", GetShiftLinkedStaffController)
+
+shiftRouter.post("/delete", validateBusinessManagerPermission, DeleteShiftController)
+
+
 
 
 

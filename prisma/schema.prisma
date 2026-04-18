@@ -111,9 +111,9 @@ model ShiftAssignment {
   baseShiftUid   String
   staffUid       String
   assignedAt     DateTime        @default(now())
-  owningBusiness BusinessProfile @relation(fields: [businessUid], references: [uid])
-  baseShift      BaseShift       @relation(fields: [baseShiftUid], references: [uid])
-  staff          UserProfile     @relation(fields: [staffUid], references: [uid])
+  owningBusiness BusinessProfile @relation(fields: [businessUid], references: [uid], onDelete: Cascade)
+  baseShift      BaseShift       @relation(fields: [baseShiftUid], references: [uid], onDelete: Cascade)
+  staff          UserProfile     @relation(fields: [staffUid], references: [uid], onDelete: Cascade)
   shifts         Shift[] // all generated shifts for this assignment
 
   @@unique([baseShiftUid, staffUid])
@@ -137,7 +137,7 @@ model Shift {
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
   owningBusiness     BusinessProfile @relation(fields: [businessUid], references: [uid])
-  baseShift          BaseShift       @relation(fields: [baseShiftUid], references: [uid])
+  baseShift          BaseShift       @relation(fields: [baseShiftUid], references: [uid], onDelete: Cascade)
   assignment         ShiftAssignment @relation(fields: [shiftAssignmentUid], references: [uid])
   staff              UserProfile     @relation(fields: [staffUid], references: [uid])
   variances          Variance[]
@@ -161,7 +161,7 @@ model Products {
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   inventory   Inventory?
-  business    BusinessProfile @relation(references: [uid], fields: [businessUid])
+  business    BusinessProfile @relation(references: [uid], fields: [businessUid], onDelete: Cascade)
   auditTrails AuditTrail[]
 }
 
@@ -174,12 +174,12 @@ model Inventory {
   createdAt               DateTime                @default(now())
   updatedAt               DateTime                @updatedAt
   isLocked                Boolean                 @default(true)
-  product                 Products                @relation(references: [uid], fields: [productUid])
+  product                 Products                @relation(references: [uid], fields: [productUid], onDelete: Cascade)
   stockEntries            StockEntry[]
   endShiftEntries         EndShiftEntry[]
   variances               Variance[]
   inventoryTotalVariances InventoryTotalVariance?
-  business                BusinessProfile?        @relation(references: [uid], fields: [businessUid])
+  business                BusinessProfile?        @relation(references: [uid], fields: [businessUid], onDelete: Cascade)
 }
 
 model AuditTrail {
