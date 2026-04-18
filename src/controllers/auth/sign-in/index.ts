@@ -28,7 +28,7 @@ export async function SignInController(req: Request, res: Response, next: NextFu
         }); 
 
         const d = getFirstLoginStatus(user)
-        success(res, { token, accessType, proceedToProfileCreation: d.proceedToProfileCreation, isFirstLogin: d.isFirstLogin, subscription }, "Sign in successful");
+        success(res, { token, accessType, proceedToProfileCreation: d.proceedToProfileCreation, isFirstLogin: d.isFirstLogin,isVerified: user.verified ,subscription }, "Sign in successful");
     } catch (error) {
         next(new InternalError(error));
     }
