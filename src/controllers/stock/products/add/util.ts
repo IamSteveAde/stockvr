@@ -7,7 +7,7 @@ export const AddPRoductDto = object(
     {
         name: string().required("Name of product required."),
         // uid: string().notRequired(),
-        unit: string().oneOf(["kg", "litres", "bags", "pieces"]).required("Unit of measurement required."),
+        unit: string().required("Unit of measurement required."),
         businessUid: string().required("sikeeeeeeee.")
     }
 )
