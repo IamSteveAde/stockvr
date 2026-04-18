@@ -8,8 +8,6 @@ export async function DeleteShiftController(req: Request, res: Response, next: N
     try {
         const profileUid = getBusinessIdFromRequest(req)
 
-        console.log(req.body)
-
         const dto: TDeleteShiftDTO = await validateDTO(DeleteShiftDTO, {...req.body, businessUid: profileUid.busId})
 
         const shift = await getSpecificShift(dto)

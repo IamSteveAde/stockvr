@@ -56,8 +56,6 @@ export async function deleteShift(dto: Awaited<ReturnType<typeof getSpecificShif
 
     if(dto.baseShift._count.shifts < 2){
 
-        console.log("entered here === {}")
-
         await prisma.baseShift.delete(
 
             {
