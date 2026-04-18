@@ -75,31 +75,18 @@ export async function getSpecificShift(dto: TStartShiftDTO) {
 
 export async function startShift(shift: Awaited<ReturnType<typeof getSpecificShift>>) {
 
-    await prisma.$transaction(async (t) => {
-        await t.shift.updateMany(
+        await prisma.shift.updateMany(
             {
                 where: {
                     baseShiftUid: shift.baseShiftUid,
                     date: shift.date
                 },
                 data: {
-                    status: "Running"
-                }
-            }
-        )
-
-        await t.shift.update(
-            {
-                where: {
-                    uid: shift.uid
-                },
-                data: {
+                    status: "Running",
                     clockInTime: new Date()
                 }
             }
         )
-    })
-
     
 }
 

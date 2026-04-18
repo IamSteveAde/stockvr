@@ -131,7 +131,7 @@ export async function pushtoRedis(businessUid: string, shiftId : string, entries
 export async function endShift( shift: Awaited<ReturnType<typeof getShift>>) {
     await prisma.shift.updateMany(
         {
-            where: { uid: shift.uid, date: shift.date },
+            where: { baseShiftUid: shift.baseShiftUid, date: shift.date },
             data: {
                 status: "Ended",
                 clockOutTime: new Date()
