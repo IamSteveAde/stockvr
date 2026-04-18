@@ -98,7 +98,7 @@ model BaseShift {
   staffInCharge   UserProfile       @relation(fields: [staffInChargeId], references: [uid], name: "staffInCharge")
   linkedStaff     ShiftAssignment[]
   shifts          Shift[]
-  auditTrails     AuditTrail[]
+  // auditTrails     AuditTrail[]
   stockEntries    StockEntry[]
   endShiftEntries EndShiftEntry[]
   variances       Variance[]
@@ -144,6 +144,7 @@ model Shift {
   stockEntries       StockEntry[]
   endShiftEntries    EndShiftEntry[]
   shiftContext       ShiftContext?
+  auditTrails        AuditTrail[]
 
   @@unique([shiftAssignmentUid, date]) // one shift per assignment per day
   @@index([staffUid, date]) // fast lookups by staff and date
@@ -192,7 +193,7 @@ model AuditTrail {
   detail      String
   entity      String
   staff       UserProfile     @relation(fields: [staffUid], references: [uid])
-  shift       BaseShift?      @relation(fields: [shiftUid], references: [uid])
+  shift       Shift?          @relation(fields: [shiftUid], references: [uid])
   product     Products?       @relation(fields: [productUid], references: [uid])
   business    BusinessProfile @relation(references: [uid], fields: [businessUid])
   createdAt   DateTime        @default(now())
@@ -301,7 +302,7 @@ model Transactions {
   source          String   @default("Paystack")
   subscriptionRef String?
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt 
+  updatedAt       DateTime @updatedAt
 
   subscription Subscriptions? @relation(fields: [subscriptionRef], references: [subscriptionRef])
 }

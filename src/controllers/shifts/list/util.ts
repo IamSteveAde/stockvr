@@ -279,7 +279,7 @@ export function getShiftsDAO(records: Awaited<ReturnType<typeof getShiftRecords>
             clockOutTime: shift.clockOutTime,
             status: shift.status,
             shiftManager: shift.baseShift.staffInCharge.name,
-            staff: shift.staff.name,
+            staff: shift?.staff?.name,
 
             baseShiftUid: shift.baseShift.uid
         }

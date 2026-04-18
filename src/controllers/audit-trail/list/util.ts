@@ -60,7 +60,11 @@ export async function listAuditTrails(dto: TListAuditTrailDTO) {
             },
             include: {
                 staff: true,
-                shift: true,
+                shift: {
+                    include: {
+                        baseShift: true
+                    }
+                },
                 product: true
             },
             orderBy: {
@@ -89,7 +93,7 @@ export function listAuditTrailDAO(records: Awaited<ReturnType<typeof listAuditTr
                 action: trail.action,
                 detail: trail.detail,
                 product: trail?.product ? trail.product?.name : "N/A",
-                shift: trail?.shift ? trail.shift?.name : "N/A",
+                shift: trail?.shift ? trail.shift?.baseShift?.name : "N/A",
                 entity: trail.entity
 
             }

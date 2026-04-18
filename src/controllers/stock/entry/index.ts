@@ -10,7 +10,7 @@ export async function LogStockEntryController(req: Request, res: Response, next:
         const staffUid = getProfileUidFromRequest(req)
         const dto = await  validateDTO(StockEntryDTO, {...req.body, staffUid})
 
-        console.log(dto)
+        // console.log(dto)
 
         const shift = await getShift({staffUid, shiftUid: dto.shiftUid})
 
@@ -26,6 +26,7 @@ export async function LogStockEntryController(req: Request, res: Response, next:
                     action: dto.action,
                     entity: "Product",
                     productUid: inventory.productUid,
+                    shiftUid: shift.uid,
                     detail: ` ${dto.action == ACTIONS_KEY.stockIn ? `Stock added (+${dto.quantity})` : `Stock removed (-${dto.quantity})`}`,
                 })
     
