@@ -119,7 +119,7 @@ export async function initiatePayment(email: string, subscriptionRef: string) {
     throw new InternalError(null, "Failed to initialize payment with Paystack.")
 }
 
-export async function createTransactionRecord(payload: { trxRef: string, amount: number, currency: string, source: string, subscriptionRef: string, status?:string }) {
+export async function createTransactionRecord(payload: { trxRef: string, amount: number, currency: string, source: string, subscriptionRef?: string, status?:string }) {
     return await prisma.transactions.create(
         {
             data: payload

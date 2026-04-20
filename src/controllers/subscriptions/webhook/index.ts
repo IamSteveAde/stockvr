@@ -1,89 +1,106 @@
-import { Request, Response } from "express"
+import { NextFunction, Request, Response } from "express"
 // import { APIResponse } from "../../util"
 // import { getPlanByID, getUserByEmail, linkSubscriptionCodeToActiveSubscription, updateTransactionStatus } from "./util"
-import { constructSubscription, createSubscription, createTransactionRecord, expirePreviousSubscriptions } from "../create-subscription/util"
+import { constructSubscription, createSubscription, createTransactionRecord, expirePreviousSubscriptions, insertSubscription } from "../create-subscription/util"
 import { nanoid } from "nanoid"
 import { success } from "../../../helpers/errorHandler/statusCodes"
 import { fetchUserByEmail } from "../../auth/sign-in/util"
-import { fetchUserByEmailWithSubscription, linkSubscriptionCodeToActiveSubscription, updateTransactionStatus } from "./util"
+import { fetchUserByEmailWithSubscription, linkSubscriptionCodeToActiveSubscription, linksubscriptionRefToTransaction, updateTransactionStatus, validateSignature } from "./util"
+import { InternalError } from "../../../helpers/errorHandler/errorHandler"
 
-export async function WebhookController(req: Request, res: Response) {
-    success(res, {}, "rreceived")
-
+export async function WebhookController(req: Request, res: Response, next: NextFunction) {
 
     try {
 
-        console.log("data ===> ", req.body)
+        validateSignature(req)
 
-        const event: Record<any, any> = req.body
-
-        const data = event.data
-
-        const ref = data.reference
-        let subscriptionRef: string | undefined
-        let invoice_action: string | undefined
-        let plan_code: string | undefined
-        const email = data.customer.email
-
-        subscriptionRef = data.metadata?.subscriptionRef
-        invoice_action = data.metadata?.invoice_action
-        plan_code = data?.plan?.plan_code
-        
-
-        const user = await fetchUserByEmailWithSubscription(email)
-        const businessProfileUid = user?.userProfiles?.business?.uid
-        
+        success(res, {}, "rreceived")
 
 
-        switch (event.event) {
+        try {
 
-            case "charge.success":
+            console.log("data ===> ", req.body)
 
-                if (subscriptionRef) {
-                    await updateTransactionStatus(ref, subscriptionRef)
-                }
+            const event: Record<any, any> = req.body
 
-                if (invoice_action == "create") {
-                    const subscriptionData = constructSubscription(user.userProfiles?.business?.uid!, true)
+            const data = event.data
 
-                    await createSubscription(subscriptionData)
-                }
-                break
-            case "subscription.create":
-                const user_subscriptions = user?.userProfiles?.business?.subscription
-                const linkedCode = data.subscription_code
-                const linkedToken = data.email_token
+            const ref = data.reference
+            let subscriptionRef: string | undefined
+            let invoice_action: string | undefined
+            let plan_code: string | undefined
+            const email = data.customer.email
 
-                if (user_subscriptions && user_subscriptions?.length > 0) {
-                    const subscription = user_subscriptions[0]
+            subscriptionRef = data.metadata?.subscriptionRef
+            invoice_action = data.metadata?.invoice_action
+            plan_code = data?.plan?.plan_code
 
-                    console.log("===>", subscription)
 
-                    await linkSubscriptionCodeToActiveSubscription(subscription?.subscriptionRef!, linkedCode, linkedToken)
-                }
-                break
+            const user = await fetchUserByEmailWithSubscription(email)
+            const businessProfileUid = user?.userProfiles?.business?.uid
 
-            case "invoice.create":
-                const subscriptionData = constructSubscription(businessProfileUid!, true)
 
-                await expirePreviousSubscriptions(new Date(), subscriptionData.subscriptionRef, businessProfileUid!)
 
-                await createSubscription({ ...subscriptionData, linkedCode: data.subscription.subscription_code, linkedEmailToken: data.subscription.email_token })
+            switch (event.event) {
 
-                await createTransactionRecord({ trxRef: data.transaction.reference, amount: Number(data.subscription.amount) / 100, currency: data.transaction.currency, source: "Paystack", subscriptionRef: subscriptionData.subscriptionRef, status: "Success" })
+                case "charge.success":
 
-                break
+                    if (subscriptionRef) {
+                        await updateTransactionStatus(ref, subscriptionRef)
+                    }
 
-            case "charge:failed":
-            case "invoice.payment_failed":
-                // await updateTransactionStatus(ref, "Failed", subscriptionRef)
-                break
+                    if (invoice_action == "create") {
+                        // const subscriptionData = constructSubscription(user.userProfiles?.business?.uid!, true)
 
-            // default:
-            //     await updateTransactionStatus(ref, "Failed", subscriptionRef)
-            //     break
+                        // console.log("new sub here===> ",subscriptionData)
+
+                        await createTransactionRecord({ trxRef: data.reference, amount: Number(data.amount) / 100, currency: data.currency, source: "Paystack", status: "Success" })
+                        // await insertSubscription(subscriptionData)
+                    }
+                    break
+                case "subscription.create":
+                    const user_subscriptions = user?.userProfiles?.business?.subscription
+                    const linkedCode = data.subscription_code
+                    const linkedToken = data.email_token
+
+                    if (user_subscriptions && user_subscriptions?.length > 0) {
+                        const subscription = user_subscriptions[0]
+
+                        console.log("===>", subscription)
+
+                        await linkSubscriptionCodeToActiveSubscription(subscription?.subscriptionRef!, linkedCode, linkedToken)
+                    }
+                    break
+
+                case "invoice.create":
+                    const subscriptionData = constructSubscription(businessProfileUid!, true)
+
+                    await expirePreviousSubscriptions(new Date(), subscriptionData.subscriptionRef, businessProfileUid!)
+
+
+                    console.log("invoice:create ==> ", subscriptionData)
+
+                    await insertSubscription({ ...subscriptionData, linkedCode: data.subscription.subscription_code, linkedEmailToken: data.subscription.email_token })
+
+                    // await createTransactionRecord({ trxRef: data.transaction.reference, amount: Number(data.subscription.amount) / 100, currency: data.transaction.currency, source: "Paystack", subscriptionRef: subscriptionData.subscriptionRef, status: "Success" })
+
+                    await linksubscriptionRefToTransaction(data.transaction.reference, subscriptionData.subscriptionRef)
+
+                    break
+
+                case "charge:failed":
+                case "invoice.payment_failed":
+                    // await updateTransactionStatus(ref, "Failed", subscriptionRef)
+                    break
+
+                // default:
+                //     await updateTransactionStatus(ref, "Failed", subscriptionRef)
+                //     break
+            }
+        } catch (error) {
+            console.log("Error processing webhook:", error)
         }
     } catch (error) {
-        console.log("Error processing webhook:", error)
+        next(new InternalError(error))
     }
 }
