@@ -7,6 +7,7 @@ import { EndShiftController } from "./end";
 import { ListStaffRecentShiftController } from "./list-recent";
 import { GetShiftLinkedStaffController } from "./get-linked-staff";
 import { DeleteShiftController } from "./delete-shift";
+import { ListUniqueShifts } from "./list-unique-shifts";
 
 
 export const shiftRouter = Router()
@@ -22,6 +23,9 @@ shiftRouter.post("/start", StartShiftController)
 shiftRouter.post("/end", EndShiftController)
 
 shiftRouter.get("/list/:type", ListStaffRecentShiftController)
+
+shiftRouter.get("/unique/list", validateBusinessManagerPermission, ListUniqueShifts)
+
 
 shiftRouter.get("/linked-staff", GetShiftLinkedStaffController)
 

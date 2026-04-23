@@ -12,10 +12,10 @@ export const ListStaffShiftDTO = object(
     }
 )
 
-export type TListShiftDTO = typeof ListStaffShiftDTO.__outputType;
+export type TListStaffShiftDTO = typeof ListStaffShiftDTO.__outputType;
 
 
-export async function getStaffShiftRecords(dto: TListShiftDTO) {
+export async function getStaffShiftRecords(dto: TListStaffShiftDTO) {
 
     return await prisma.shift.paginate(
         {
