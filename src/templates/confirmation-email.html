@@ -1,106 +1,4 @@
-import { object, string } from "yup"
-import { prisma } from "../../../helpers/db/client";
-import { InternalError } from "../../../helpers/errorHandler/errorHandler";
-import crypto from "node:crypto";
-import { nanoid } from "nanoid";
-import { ACCESS_TYPES } from "../../../helpers/accessTypes";
-import { createJwtToken } from "../sign-in/util";
-import { SECRETS } from "../../../helpers/util/secrets";
-
-
-export const AccountDTO = object(
-    {
-        fullName: string().required("Name required"),
-        email: string().email("Invalid email format.").required("Email missing."),
-        phoneNo: string().required("Phone number missing."),
-        password: string().min(8, "Password cannot be less than 8 characters..").required("Password missing"),
-    }
-)
-
-export const PWDDTO = object(
-    {
-        password: string().min(8, "Password cannot be less than 8 characters..").required("Password missing"),
-    }
-)
-
-export type TAccountDTO = typeof AccountDTO.__outputType;
-
-export type TPWDDto = typeof PWDDTO.__outputType;
-
-export async function validateExistence(dto: TAccountDTO) {
-    const user = await prisma.users.findFirst(
-        {
-            where: {
-                email: dto.email
-            }
-        }
-    )
-    if (user) throw new InternalError(null, "User with email provided exists. Kindly reset your password to proceed.")
-    return
-}
-
-export const hashPassword = (dto: TPWDDto): Promise<string> => {
-
-    const password = dto.password
-
-    return new Promise((resolve, reject) => {
-        const salt = crypto.randomBytes(16).toString("hex"); // generate a random salt
-        crypto.scrypt(password, salt, 64, (err, derivedKey) => {
-            if (err) reject(err);
-            resolve(`${salt}:${derivedKey.toString("hex")}`);
-        });
-    });
-};
-
-export const verifyPassword = (dto: TPWDDto, storedHash: string): Promise<boolean> => {
-
-    const password = dto.password
-    return new Promise((resolve, reject) => {
-        const [salt, key] = storedHash.split(":");
-        crypto.scrypt(password, salt!, 64, (err, derivedKey) => {
-            if (err) reject(err);
-            resolve(key === derivedKey.toString("hex"));
-        });
-    });
-};
-
-export async function createUserRecord(dto: TAccountDTO) {
-    return await prisma.users.create(
-        {
-            data: {
-                uid: `ACC-${nanoid(24)}`,
-                email: dto.email,
-                password: await hashPassword({password: dto.password}),
-                isBusinessOwner: true,
-                userProfiles: {
-                    create: {
-                        name: dto.fullName,
-                        uid: `UPR-${nanoid(12)}`,
-                        accessType: ACCESS_TYPES.owner.toLowerCase(),
-                        phoneNo: dto.phoneNo
-                    }
-                }
-            }
-        }
-    )
-}
-
-export function generateVerificationLink(userUid: string) {
-    const token = createJwtToken({
-        accessType: "verify-user",
-        permissions: [],
-        userProfileUid: userUid,
-        // businessUid: undefined
-    });
-    const baseUri = SECRETS.BACKEND_URL
-    const vUrl = `${baseUri}/api/auth/verify`;
-    return `${vUrl}?token=${token}`;
-}
-
-
-// name,confirmationLink,confirmationLink
-
-export const templateHTMl = `<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -137,7 +35,7 @@ export const templateHTMl = `<!DOCTYPE html>
                 <tr>
                   <td style="padding-top:20px;">
                     <h1 style="margin:0;font-size:24px;font-weight:600;color:#111827;line-height:1.3;letter-spacing:-0.02em;">
-                      You're almost set, %s.
+                      You're almost set, {{FirstName}}.
                     </h1>
                   </td>
                 </tr>
@@ -158,7 +56,7 @@ export const templateHTMl = `<!DOCTYPE html>
               <table cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td style="background-color:#0d9488;border-radius:8px;">
-                    <a href="%s" style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;letter-spacing:-0.01em;">
+                    <a href="{{ConfirmationLink}}" style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;letter-spacing:-0.01em;">
                       Confirm my email &rarr;
                     </a>
                   </td>
@@ -267,7 +165,7 @@ export const templateHTMl = `<!DOCTYPE html>
                 If the button doesn't work, copy and paste this link into your browser:
               </p>
               <p style="margin:0;font-size:12px;font-family:'DM Mono',monospace;color:#0d9488;word-break:break-all;">
-                %s
+                {{ConfirmationLink}}
               </p>
             </td>
           </tr>
@@ -316,4 +214,3 @@ export const templateHTMl = `<!DOCTYPE html>
 
 </body>
 </html>
-`
