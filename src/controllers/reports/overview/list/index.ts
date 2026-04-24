@@ -21,6 +21,7 @@ export async function GetOverViewListController(req: Request, res: Response, nex
 
 
     }catch(error){
+        console.log(error)
         next( new InternalError(error))
     }
 }

@@ -164,6 +164,9 @@ model Products {
   inventory   Inventory?
   business    BusinessProfile @relation(references: [uid], fields: [businessUid], onDelete: Cascade)
   auditTrails AuditTrail[]
+
+  @@index([uid])
+  @@index([businessUid])
 }
 
 model Inventory {
@@ -181,6 +184,10 @@ model Inventory {
   variances               Variance[]
   inventoryTotalVariances InventoryTotalVariance?
   business                BusinessProfile?        @relation(references: [uid], fields: [businessUid], onDelete: Cascade)
+
+  @@index([uid])
+  @@index([productUid])
+  @@index([businessUid])
 }
 
 model AuditTrail {
@@ -251,6 +258,9 @@ model Variance {
   linkedInventory    Inventory       @relation(fields: [inventoryUid], references: [uid])
   staffInChargeShift Shift           @relation(fields: [shiftUid], references: [uid])
   baseShift          BaseShift       @relation(fields: [baseShiftUid], references: [uid])
+
+  @@index([inventoryUid])
+  @@index([baseShiftUid])
 }
 
 model InventoryTotalVariance {

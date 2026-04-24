@@ -109,12 +109,15 @@ export async function getInventoryTotalVarianceByShift(dto: TOverviewListDTO) {
         }
     )
 
-    console.log(data)
+    // console.log(data)
 
     return data
 }
 
 export function getInventoryTotalDaoByShift(data: Awaited<ReturnType<typeof getInventoryTotalVarianceByShift>>) {
+
+    // this is incomplete it doesn't return a concatenated list of items
+
     return {
         data: data[0].map(item => {
             return {
