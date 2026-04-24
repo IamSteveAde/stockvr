@@ -53,88 +53,143 @@ export function getInventoryTotalDao(data: Awaited<ReturnType<typeof getInventor
     }
 }
 
-export async function getInventoryTotalVarianceByShift(dto: TOverviewListDTO) {
+// downloadVarianceReport
 
-    const shifts = dto.shifts ? dto.shifts?.split(",") : undefined
-    const products = dto.products ? dto.products?.split(",") : undefined
-
-    // console.log(products)
-    // console.log(shifts)
-
-    // // there's different errors
-
-    // console.log("d = > ", {
-    //                 shiftUid: shifts ? {
-    //                     in: shifts
-    //                 } : undefined,
-
-    //                 linkedInventory: products ? {
-    //                     productUid: {
-    //                         in: products
-    //                     }
-
-    //                 } : undefined
-    //             })
-
-    const data = await prisma.variance.paginate(
+export async function getBusinessProductInventoryUidsForOverview(productIds: string[], businessUid: string) {
+    const inventory = await prisma.inventory.findMany(
         {
             where: {
+                businessUid,
+                productUid: {
+                    in: productIds
+                }
+            },
+            select: {
+                uid: true,
+                product: {
+                    select: {
+
+                        name: true,
+                        unit: true
+                    }
+                }
+            }
+        }
+    )
+    const items = inventory?.map(item => item.uid)
+
+    return { items, inventory }
+}
+
+
+
+
+export async function getVarianceAggregateByProductForOverView(dto: TOverviewListDTO) {
+
+    const shifts = dto.shifts ? dto.shifts?.split(",") : undefined
+    const inventoryIds = dto.products ? await getBusinessProductInventoryUidsForOverview(dto.products?.split(","), dto.businessUid) : undefined
+
+    const data = await prisma.variance.groupBy(
+        {
+            by: ["inventoryUid"],
+            where: {
                 businessUid: dto.businessUid,
+                // AND: {
+
+                // }
                 AND: {
                     shiftUid: shifts ? {
                         in: shifts
                     } : undefined,
-
-                    linkedInventory: products ? {
-                        productUid: {
-                            in: products
-                        }
-
-                    } : undefined
+                    inventoryUid: inventoryIds ? { in: inventoryIds.items } : undefined
                 }
             },
-            
-            include: {
-                linkedInventory: {
-                    include: {
-                        product: true
-                    }
-                },
-            }
-        }
-    ).withPages(
-        {
-            page: dto.page,
-            limit: dto.pageLimit, includePageCount: true
-        }
+            _sum: {
+                // : true,
+                actualCount: true,
+                expectedCount: true,
+                variance: true
+            },
+
+        },
+
     )
 
-    // console.log(data)
+    // console.log("aggregates ====> ")
+    // console.dir({
+    //     shifts,
+    //     inventoryIds,
+    //     data
+    // }, { depth: 12 })
 
-    return data
+    // console.log("aggregates ====> ")
+
+    return { data, inventoryIds }
 }
 
-export function getInventoryTotalDaoByShift(data: Awaited<ReturnType<typeof getInventoryTotalVarianceByShift>>) {
 
-    // this is incomplete it doesn't return a concatenated list of items
+export async function siftFetchedByFilters(aggregates: Awaited<ReturnType<typeof getVarianceAggregateByProductForOverView>>) {
+    let inventory: any[] = []
+    if (!aggregates.inventoryIds) {
+        inventory = await prisma.inventory.findMany(
+            {
+                where: {
+                    uid: {
+                        in: aggregates.data.map(item => item.inventoryUid)
+                    }
+                },
+                select: {
+                    uid: true,
+                    product: {
+                        select: {
 
-    return {
-        data: data[0].map(item => {
-            return {
-                name: item.linkedInventory?.product.name,
-                unit: item.linkedInventory?.product.unit,
-                expectedCount: item.expectedCount || 0,
-                actualCount: item.actualCount || 0,
-                variance: item.variance || 0,
+                            name: true,
+                            unit: true
+                        }
+                    }
+                }
             }
-        }), meta: data[1]
+        )
+    } else {
+        inventory = aggregates.inventoryIds.inventory
     }
+
+    // console.log("in sifts ====> ")
+    // console.dir({
+    //     aggregates,
+    //     inventory
+    // }, { depth: 12 })
+
+
+
+    const d = aggregates.data.map((items, index) => {
+        const productInventory = inventory.find(x => x.uid == items.inventoryUid)
+
+        // console.log("On product map ===> ", productInventory)
+
+        return {
+            // uid: productInventory?.uid,
+            name: productInventory?.product.name,
+            unit: productInventory?.product.unit,
+            expectedCount: items._sum.expectedCount,
+            actualCount: items._sum.actualCount,
+            variance: items._sum.variance
+        }
+
+    })
+
+    return d
 }
+
+
+
 
 export async function getData(dto: TOverviewListDTO) {
     if (dto.products || dto.shifts) {
-        const d = await getInventoryTotalVarianceByShift(dto)
-        return getInventoryTotalDaoByShift(d)
+        const d = await getVarianceAggregateByProductForOverView(dto)
+
+        // console.log("d-====> ", d)
+        return {data: await siftFetchedByFilters(d), meta: {}}
     }
     const d_ = await getInventoryTotalVariance(dto)
     return getInventoryTotalDao(d_)

@@ -40,7 +40,7 @@ export function validateBusinessPermission(req: Request, res: Response, next: Ne
 export function validateBusinessManagerPermission(req: Request, res: Response, next: NextFunction) {
     const payload = (req as any).jwtPayload;
 
-    console.log(payload)
+    // console.log(payload)
 
     if (!["owner", "manager"].includes(payload.accessType) ) {
         return next(new InternalError(null, "Unauthorized Access for this route", HttpStatusCode.Unauthorized))
