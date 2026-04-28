@@ -18,6 +18,7 @@ export const SECRETS = {
     PAYSTACK_PLAN_ID: process.env.PAYSTACK_PLAN_ID,
     PAYSTACK_CALLBACK: process.env.PAYSTACK_CALLBACK,
     PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY,
-    SUPPORT_MAIL : "support@stockvar.app"
+    SUPPORT_MAIL : "support@stockvar.app",
+    BANNER_IMAGE: process.env.BACKEND_URL+"/static/stockvar_up.svg"
     // Add other secrets here as needed
 };

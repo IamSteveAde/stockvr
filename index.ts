@@ -14,6 +14,7 @@ import { dashboardRouter } from "./src/controllers/dashboard";
 import { adminRouter } from "./src/controllers/admin";
 import morgan from "morgan";
 import { subscriptionRouter } from "./src/controllers/subscriptions";
+import path from "path";
 
 const app = express()
 app.use(cors(
@@ -23,6 +24,10 @@ app.use(express.urlencoded())
 app.use(express.json())
 
 app.use(morgan("dev"));
+
+var dir = path.join(__dirname, 'src/templates');
+
+app.use("/static",express.static(dir));
 
 app.use("/api/auth", authRouter)
 app.use("/api/profile", profileRouter)
