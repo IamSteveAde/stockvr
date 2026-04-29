@@ -5,17 +5,35 @@ export const ListStaffDTO = object({
     limit: number().default(20),
     page: number().default(1),
     businessUid: string().required("Business profile UID is required."),
-    filter: string()
+    filter: string(),
+    text: string().notRequired()
 });
 
 export type TListStaffDTO = typeof ListStaffDTO.__outputType;
 
 export async function listStaff(dto: TListStaffDTO) {
-    console.log("DTO in listStaff:", dto);
 
+    let q: Record<any, any> = {
+        businessUid: dto.businessUid,
+        status: dto.filter ?? undefined
+    }
+
+    if (dto.text) {
+
+        q.OR = [
+            { name: { contains: dto.text, mode: "insensitive" } },
+            {
+                owner: {
+                    email: { contains: dto.text, mode: "insensitive" }
+                }
+            }
+        ]
+
+        
+    }
 
     const staff = await prisma.userProfile.paginate({
-        where: { businessUid: dto.businessUid, status: dto.filter ?? undefined },
+        where: q,
         include: { owner: true }
     }).withPages({ page: dto.page, limit: dto.limit, includePageCount: true });
 

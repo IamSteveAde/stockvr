@@ -20,7 +20,7 @@ export async function ListUniqueShifts(req: Request, res: Response, next: NextFu
 
         // const dto = await validateDTO(ListShiftDTO, { ...req.params, ...req.query, profileUid })
 
-        const data = await getUniqueEndedStaffShiftRecords({ page: 1, businessUid:q.profileUid })
+        const data = await getUniqueEndedStaffShiftRecords({ page: Number(req.query.page || 1), businessUid:q.profileUid })
 
         success(res, data)
 

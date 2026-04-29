@@ -13,6 +13,16 @@ datasource db {
   provider = "postgresql"
 }
 
+model Search {
+  id          Int      @id @default(autoincrement())
+  text        String
+  source      String
+  createdAt   DateTime @default(now())
+  businessUid String
+  
+  @@index([text])
+}
+
 model Users {
   id              Int          @unique @default(autoincrement())
   uid             String       @unique

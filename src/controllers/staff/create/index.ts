@@ -5,6 +5,8 @@ import { success } from "../../../helpers/errorHandler/statusCodes";
 import { CreateStaffDTO, createStaff, getBusinessProfile, staffInviteHTML } from "./util";
 import util from "util"
 import { SECRETS } from "../../../helpers/util/secrets";
+import { insertSearchParameters } from "../../search/util";
+
 export async function CreateStaffController(req: Request, res: Response, next: NextFunction) {
     try {
 
@@ -26,6 +28,9 @@ export async function CreateStaffController(req: Request, res: Response, next: N
             // html: `<p>Hello ${dto.name},</p><p>Your login PIN is: <b>${staff.pin}</b></p>`
             html
         });
+
+        await insertSearchParameters({businessUid: business.busId, source:"Staff", "text": dto.name})
+        await insertSearchParameters({businessUid: business.busId, source:"Staff", "text": dto.email})
     } catch (error) {
         console.error("Error in CreateStaffController:", error);
         next(new InternalError(error));

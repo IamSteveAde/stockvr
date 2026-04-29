@@ -14,7 +14,7 @@ import { TListShiftDTO } from "../list/util";
 // Prisma
 
 
-export async function getUniqueEndedStaffShiftRecords(dto: { page: 1, businessUid: string }) {
+export async function getUniqueEndedStaffShiftRecords(dto: { page: number, businessUid: string }) {
 
     console.log(dto)
     const limit = 10;

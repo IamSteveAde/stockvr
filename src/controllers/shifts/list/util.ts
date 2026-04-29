@@ -9,7 +9,8 @@ export const ListShiftDTO = object(
         profileUid: string().required("profile missing ?"),
         page: number().default(1),
         timezone: string().default("Africa/Lagos"),
-        type: string().oneOf(["Pending", "Running", "Ended"]).notRequired()
+        type: string().oneOf(["Pending", "Running", "Ended"]).notRequired(),
+        text: string().notRequired()
 
     }
 )
@@ -25,6 +26,7 @@ export async function getShiftRecords(dto: TListShiftDTO) {
     switch (dto.userType.toLowerCase()) {
         case "owner":
             q.businessUid = dto.profileUid
+            q.baseShift = dto.text ? {name: {contains: dto.text, mode: "insensitive"}} : undefined
             break
 
         case "manager":

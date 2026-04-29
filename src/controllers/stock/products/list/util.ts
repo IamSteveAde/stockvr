@@ -6,7 +6,8 @@ export const ListProductDTO = object(
     {
         businessUid: string().required("Sikeeeeee"),
         page: number().default(1),
-        limit: number().default(10)
+        limit: number().default(10),
+        text: string().notRequired()
     }
 )
 
@@ -17,7 +18,8 @@ export async function getProductsRecords(dto: TListProductDTO) {
     return await prisma.products.paginate(
         {
             where: {
-                businessUid: dto.businessUid
+                businessUid: dto.businessUid,
+                name: dto.text ? {contains: dto.text, mode: "insensitive"} : undefined
             },
             include: {
                 inventory: true
