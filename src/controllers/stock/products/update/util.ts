@@ -1,21 +1,22 @@
-import { object, string} from "yup"
+import { object, string } from "yup"
 import { prisma } from "../../../../helpers/db/client";
 import { InternalError } from "../../../../helpers/errorHandler/errorHandler";
 import { HttpStatusCode } from "axios";
 
 
-export const ArchiveDTO = object(
+export const UpdateDTO = object(
     {
         businessUid: string().required("sikeeeeee"),
         uid: string().required("Missing product identifier"),
-        status: string().oneOf(["Archived", "Active"]).required("Status required.")
+        name: string().notRequired(),
+        unit: string().notRequired(),
     }
 )
 
-export type TArchiveDTO = typeof ArchiveDTO.__outputType;
+export type TUpdateDTO = typeof UpdateDTO.__outputType;
 
 
-export async function getProductRecord(dto: TArchiveDTO){
+export async function getProductRecord(dto: TUpdateDTO) {
     const product = await prisma.products.findFirst(
         {
             where: {
@@ -28,19 +29,23 @@ export async function getProductRecord(dto: TArchiveDTO){
         }
     )
 
-    if(!product){
+    if (!product) {
         throw new InternalError(null, "Product not found", HttpStatusCode.NotFound)
     }
 
     return product
 }
 
-export async function changeProductStatus(dto: TArchiveDTO){
+export async function updateProductDetails(dto: TUpdateDTO) {
+    const q = {
+        name: dto.name ?? undefined,
+        unit: dto.unit ?? undefined
+    }
     await prisma.products.update(
         {
-            where: {uid: dto.uid},
+            where: { uid: dto.uid },
             data: {
-                status: dto.status,
+                ...q,
                 updatedAt: new Date()
             }
         }

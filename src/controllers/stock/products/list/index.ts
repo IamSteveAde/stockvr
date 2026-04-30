@@ -8,7 +8,7 @@ export async function ListProductController(req: Request, res: Response, next: N
     try {
         const bus =  getBusinessIdFromRequest(req)
 
-        console.log("bussss=> ", bus)
+        // console.log("bussss=> ", bus)
 
         const dto = await validateDTO(ListProductDTO, {...req.query, businessUid: bus.busId})
 
