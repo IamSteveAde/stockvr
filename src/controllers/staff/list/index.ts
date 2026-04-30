@@ -15,7 +15,7 @@ export async function ListStaffController(req: any, res: any, next: any) {
         // console.log(staffData)
         success(res, staffData , "Staff members retrieved successfully");
     } catch (error) {
-        console.error("Error in ListStaffController:", error);
+        // console.error("Error in ListStaffController:", error);
         next(new InternalError(error));
     }
 }

@@ -5,7 +5,7 @@ export const ListStaffDTO = object({
     limit: number().default(20),
     page: number().default(1),
     businessUid: string().required("Business profile UID is required."),
-    filter: string(),
+    filter: string().default("Active"),
     text: string().notRequired()
 });
 
