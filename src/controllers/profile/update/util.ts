@@ -4,7 +4,7 @@ import { object, string } from "yup";
 
 export const UpdateProfileDTO = object({
     name: string().optional(),
-    profileUrl: string().optional(),
+    // profileUrl: string().optional(),
     phoneNo: string().optional()
 });
 
@@ -17,7 +17,7 @@ export async function updateUserProfile(userProfileUid: string, data: TUpdatePro
         where: { uid: userProfileUid },
         data: {
             name: data.name ?? userProfile.name,
-            profileUrl: data.profileUrl ?? userProfile.profileUrl,
+            // profileUrl: data.profileUrl ?? userProfile.profileUrl,
             phoneNo: data.phoneNo ?? userProfile.phoneNo
         }
     });
