@@ -18,6 +18,7 @@ export async function getShiftVarianceRecords(dto: TShiftContextDTO) {
     return await prisma.shift.paginate(
         {
             where: {
+                businessUid:dto.businessUid,
                 variances: {
                     some: {
                         createdAt: {

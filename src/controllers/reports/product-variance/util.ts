@@ -18,6 +18,7 @@ export async function getProductVarianceRecords(dto: TProductVariancetDTO) {
     return await prisma.inventory.paginate(
         {
             where: {
+                businessUid: dto.businessUid,
                 variances: {
                     some: {
                         createdAt: {
@@ -104,7 +105,7 @@ export function getProductVarianceRecordsDAO(data: Awaited<ReturnType<typeof get
                         "usedCount": x.usedCount,
                         "actualCount": x.actualCount,
                         "expectedCount": x.expectedCount,
-                        "variance": x.variance,
+                        "variance": Number(x.variance),
                         "createdAt": x.createdAt,
                         "businessUid": x.businessUid,
                         linkedStaffCount: x.baseShift._count.linkedStaff
