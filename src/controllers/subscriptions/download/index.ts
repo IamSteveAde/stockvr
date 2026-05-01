@@ -44,7 +44,7 @@ export async function DownloadInvoiceController(req: Request, res: Response, nex
         res.setHeader('Content-Length', pdfBuffer.length);
         res.send(pdfBuffer);
     } catch (err) {
-        // console.error('Invoice generation failed:', err);
+        console.error('Invoice generation failed:', err);
         // res.status(500).json({ message: 'Failed to generate invoice' });
 
         next(new InternalError(err))
