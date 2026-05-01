@@ -18,7 +18,7 @@ export async function fetchUserByEmail(email: string) {
         where: { email },
         include: { userProfiles: { include:{business: true} }}
     });
-    if (!user) throw new InternalError(null, "User not found.");
+    if (!user ||user.userProfiles?.status.toLowerCase() != "active") throw new InternalError(null, "User not found.");
     return user;
 }
 
