@@ -16,7 +16,7 @@ export async function SignInController(req: Request, res: Response, next: NextFu
 
         if (!user.verified) {
             const link = generateVerificationLink(user.uid)
-            const html = util.format(templateHTMl, dto.fullName, link, link)
+            const html = util.format(templateHTMl, user.userProfiles?.name, link, link)
             // name,confirmationLink,confirmationLink
             await sendMail(
                 {
