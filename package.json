@@ -20,6 +20,7 @@
     "pdfkit-table": "^0.1.99",
     "pg": "^8.18.0",
     "prisma-extension-pagination": "^0.7.6",
+    "puppeteer": "^24.42.0",
     "yup": "^1.7.1"
   },
   "devDependencies": {

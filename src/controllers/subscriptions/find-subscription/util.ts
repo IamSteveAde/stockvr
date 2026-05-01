@@ -19,7 +19,18 @@ export async function getSubscriptionForBusiness(businessUid: string){
             startAt: true,
             endAt: true,
             isTrial: true,
-            isActive: true
+            isActive: true,
+            createdAt: true,
+            transactions: {
+                select: {
+                    createdAt: true,
+                    amount: true,
+                    currency: true,
+                    source: true,
+                    status: true,
+                    trxRef: true
+                }
+            }
         }
     })
 

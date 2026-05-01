@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StockVAR Invoice</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', Arial, sans-serif;
+      background-color: #f0f4f3;
+      color: #111827;
+      padding: 40px 16px;
+    }
+
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #d1e0dd;
+    }
+
+    /* Header */
+    .header {
+      background-color: #19464b;
+      padding: 28px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header img {
+      height: 40px;
+      display: block;
+    }
+
+    .header-contact {
+      text-align: right;
+    }
+
+    .header-contact p {
+      font-size: 12px;
+      color: #ccfbf1;
+      line-height: 1.7;
+    }
+
+    /* Invoice title bar */
+    .title-bar {
+      background-color: #f0fdf9;
+      border-bottom: 1px solid #d1e0dd;
+      padding: 20px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .title-bar h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #19464b;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .status-paid { background-color: #ccfbf1; color: #19464b; border: 1px solid #99f6e4; }
+    .status-pending { background-color: #fef9c3; color: #a16207; border: 1px solid #fde047; }
+    .status-unpaid { background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+
+    /* Meta row */
+    .meta-row {
+      padding: 24px 48px;
+      display: flex;
+      gap: 40px;
+      border-bottom: 1px solid #e5eeec;
+      background: #fff;
+    }
+
+    .meta-item label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .meta-item span {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: #111827;
+      font-weight: 500;
+    }
+
+    /* Body */
+    .body {
+      padding: 32px 48px;
+    }
+
+    .section {
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5eeec;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .info-item label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 3px;
+    }
+
+    .info-item span {
+      font-size: 14px;
+      color: #374151;
+    }
+
+    /* Table */
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 4px;
+    }
+
+    .table thead tr {
+      background-color: #f0f4f3;
+    }
+
+    .table thead th {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6b7280;
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid #d1e0dd;
+    }
+
+    .table thead th:last-child { text-align: right; }
+
+    .table tbody td {
+      padding: 14px 16px;
+      font-size: 14px;
+      color: #374151;
+      border-bottom: 1px solid #f0f4f3;
+    }
+
+    .table tbody td:last-child {
+      text-align: right;
+      font-family: 'DM Mono', monospace;
+      font-weight: 500;
+      color: #111827;
+    }
+
+    /* Summary box */
+    .summary-box {
+      background-color: #f0fdf9;
+      border: 1px solid #d1e0dd;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-top: 24px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+    }
+
+    .summary-row:not(:last-child) {
+      border-bottom: 1px solid #e5eeec;
+      padding-bottom: 10px;
+      margin-bottom: 4px;
+    }
+
+    .summary-row label {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .summary-row span {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: #374151;
+      font-weight: 500;
+    }
+
+    .summary-row.total label {
+      font-size: 15px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .summary-row.total span {
+      font-size: 18px;
+      font-weight: 700;
+      color: #19464b;
+    }
+
+    /* Footer */
+    .footer {
+      background-color: #f0f4f3;
+      border-top: 1px solid #d1e0dd;
+      padding: 16px 48px;
+      text-align: center;
+    }
+
+    .footer p {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #9ca3af;
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .page { border: none; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page">
+
+    <!-- Header -->
+    <div class="header">
+      <img src="http://localhost:3002/static/stockvar_up.svg" alt="StockVAR" width="180" style="display:block;border:0;outline:none;text-decoration:none;max-width:180px;"/>
+      <div class="header-contact">
+        <p>Stock Accountability System</p>
+        <p>support@stockvar.app</p>
+        <p>www.stockvar.app</p>
+      </div>
+    </div>
+
+    <!-- Title bar -->
+    <div class="title-bar">
+      <h1>Invoice</h1>
+      <span class="status-badge status-{{PaymentStatusClass}}">{{PaymentStatus}}</span>
+    </div>
+
+    <!-- Meta -->
+    <div class="meta-row">
+      <div class="meta-item">
+        <label>Invoice ID</label>
+        <span>{{InvoiceId}}</span>
+      </div>
+      <div class="meta-item">
+        <label>Date Issued</label>
+        <span>{{DateIssued}}</span>
+      </div>
+      <div class="meta-item">
+        <label>Billing Period</label>
+        <span>{{BillingPeriodStart}} – {{BillingPeriodEnd}}</span>
+      </div>
+      <div class="meta-item">
+        <label>Next Billing Date</label>
+        <span>{{NextBillingDate}}</span>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="body">
+
+      <!-- Billed To -->
+      <div class="section">
+        <p class="section-title">Billed To</p>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Restaurant Name</label>
+            <span>{{RestaurantName}}</span>
+          </div>
+          <div class="info-item">
+            <label>Contact Person</label>
+            <span>{{ContactPerson}}</span>
+          </div>
+          <div class="info-item">
+            <label>Email</label>
+            <span>{{Email}}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Details -->
+      <div class="section">
+        <p class="section-title">Payment Details</p>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{Description}}</td>
+              <td>{{Amount}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Summary -->
+      <div class="section">
+        <p class="section-title">Summary</p>
+        <div class="summary-box">
+          <div class="summary-row">
+            <label>Payment Date</label>
+            <span>{{PaymentDate}}</span>
+          </div>
+          <div class="summary-row">
+            <label>Payment Method</label>
+            <span>{{PaymentMethod}}</span>
+          </div>
+          <div class="summary-row">
+            <label>Reference</label>
+            <span>{{Reference}}</span>
+          </div>
+          <div class="summary-row total">
+            <label>Amount Paid</label>
+            <span>{{AmountPaid}}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>Clarity in every shift. &mdash; StockVAR &copy; {{Year}}</p>
+    </div>
+
+  </div>
+
+</body>
+</html>

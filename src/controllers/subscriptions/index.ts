@@ -4,6 +4,7 @@ import { InitializeSubscriptionController } from "./create-subscription";
 import {Router} from "express";
 import { WebhookController } from "./webhook";
 import { FindSubscriptionController } from "./find-subscription";
+import { DownloadInvoiceController } from "./download";
 
 export const subscriptionRouter = Router();
 
@@ -15,4 +16,6 @@ subscriptionRouter.use(validateBusinessPermission)
 
 subscriptionRouter.get("/initialize", InitializeSubscriptionController);
 subscriptionRouter.get("/find", FindSubscriptionController);
+subscriptionRouter.get("/download", DownloadInvoiceController);
+
 // subscriptionRouter.post("/initialize", InitializeSubscriptionController);
