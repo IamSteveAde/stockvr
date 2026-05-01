@@ -11,7 +11,6 @@ export async function SetNewPasswordController(req: Request, res: Response, next
         if (!payload || !payload.userProfileUid) {
             throw new InternalError(null, "Invalid or missing token payload.");
         }
-
         const user = await fetchUserAndProfileByUid(payload.userProfileUid);
         await updateUserPassword(user, dto.password);
         success(res, {}, "Password updated successfully");

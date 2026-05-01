@@ -12,10 +12,15 @@ export type TNewPasswordDTO = typeof NewPasswordDTO.__outputType;
 
 // Fetch user and user profile by userProfileUid
 export async function fetchUserAndProfileByUid(userProfileUid: string) {
-    const user = await prisma.users.findUnique(
+    const user = await prisma.users.findFirst(
         {
             where: {
-                uid: userProfileUid
+                OR:[
+                    {uid: userProfileUid},
+                    {userProfiles: {
+                        uid: userProfileUid
+                    }}
+                ]
             }
         }
     )
