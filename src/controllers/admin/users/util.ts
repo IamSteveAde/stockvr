@@ -34,7 +34,10 @@ export async function GetUserMetric(dto: TUserMetricDTO) {
             count = await prisma.userProfile.count(
                 {
                     where: {
-                        status: "InActive"
+                        status: {
+                            not:"active",
+                            mode: "insensitive"
+                        }
                     }
                 }
             )
