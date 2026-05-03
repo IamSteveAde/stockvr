@@ -96,6 +96,7 @@ export async function initiatePayment(email: string, subscriptionRef: string) {
         email,
         amount: 0,
         plan: SECRETS?.PAYSTACK_PLAN_ID,
+        channels: ["card", "bank", "apple_pay", "ussd", "qr", "mobile_money", "bank_transfer", "eft", "capitec_pay", "payattitude"],
         metadata: {
             type: "subscription",
             subscriptionRef,
