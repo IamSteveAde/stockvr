@@ -25,8 +25,8 @@ export async function getShiftVarianceRecords(dto: TShiftContextDTO) {
                             gte: dto.startDate,
                             lte: dto.endDate
                         },
-                        variance: {
-                            lt: 0
+                        NOT: {
+                            variance: { equals: 0 }
                         }
                     }
                 }
@@ -41,9 +41,8 @@ export async function getShiftVarianceRecords(dto: TShiftContextDTO) {
                 },
                 variances: {
                     where: {
-                        variance: {
-                            lt: 0
-
+                        NOT: {
+                            variance: { equals: 0 }
                         }
                     },
                     include: {

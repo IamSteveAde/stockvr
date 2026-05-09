@@ -94,9 +94,6 @@ export async function getVarianceAggregateByProductForOverView(dto: TOverviewLis
             by: ["inventoryUid"],
             where: {
                 businessUid: dto.businessUid,
-                // AND: {
-
-                // }
                 AND: {
                     shiftUid: shifts ? {
                         in: shifts
@@ -105,7 +102,6 @@ export async function getVarianceAggregateByProductForOverView(dto: TOverviewLis
                 }
             },
             _sum: {
-                // : true,
                 actualCount: true,
                 expectedCount: true,
                 variance: true

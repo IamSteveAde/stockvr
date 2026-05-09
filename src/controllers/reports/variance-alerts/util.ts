@@ -18,22 +18,22 @@ export type TVarianceAlertDTO = typeof VarianceAlertDTO.__outputType;
 
 export async function getVarianceAlerts(dto: TVarianceAlertDTO) {
 
-    const q = {
-        businessUid: dto.businessUid,
-        createdAt: {
-            gte: dto.startDate,
-            lte: dto.endDate
-        },
-        variance: getSeverityQuery(dto.severity),
-        linkedInventory: dto.t ? {
-            product: {
-                name: {
-                    contains: dto.t
-                }
-            }
-        } : undefined
+    // const q = {
+    //     businessUid: dto.businessUid,
+    //     createdAt: {
+    //         gte: dto.startDate,
+    //         lte: dto.endDate
+    //     },
+    //     variance: getSeverityQuery(dto.severity),
+    //     linkedInventory: dto.t ? {
+    //         product: {
+    //             name: {
+    //                 contains: dto.t
+    //             }
+    //         }
+    //     } : undefined
 
-    }
+    // }
 
     return await prisma.variance.paginate(
         {
@@ -43,7 +43,16 @@ export async function getVarianceAlerts(dto: TVarianceAlertDTO) {
                     gte: dto.startDate,
                     lte: dto.endDate
                 },
-                variance: getSeverityQuery(dto.severity),
+
+                AND: [{
+                    variance: getSeverityQuery(dto.severity)
+                }, {
+                    variance: {
+                        not: {
+                            equals: 0
+                        }
+                    }
+                }],
                 linkedInventory: dto.t ? {
                     product: {
                         name: {
@@ -98,18 +107,18 @@ function getSeverity(variance: number): "low" | "medium" | "high" {
 }
 
 function getSeverityQuery(x: TVarianceAlertDTO["severity"]) {
-  switch (x) {
-    case "low":
-      return { gte: -10, lt: 0 }      // 0 to -10
+    switch (x) {
+        case "low":
+            return { gte: -10, lt: 0 }      // 0 to -10
 
-    case "medium":
-      return { gte: -15, lt: -10 }    // -10 to -15
+        case "medium":
+            return { gte: -15, lt: -10 }    // -10 to -15
 
-    case "high":
-      return { lt: -15 }              // below -15
+        case "high":
+            return { lt: -15 }              // below -15
 
-    default:
-      return undefined
-  }
+        default:
+            return undefined
+    }
 }
 

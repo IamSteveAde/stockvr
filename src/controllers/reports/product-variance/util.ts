@@ -25,9 +25,10 @@ export async function getProductVarianceRecords(dto: TProductVariancetDTO) {
                             gte: dto.startDate,
                             lte: dto.endDate
                         },
-                        // variance: {
-                        //     {lt: 0}
-                        // }
+
+                        NOT: {
+                            variance: { equals: 0 }
+                        }
                     }
                 }
             },
@@ -38,7 +39,7 @@ export async function getProductVarianceRecords(dto: TProductVariancetDTO) {
                     }
                 },
                 _count: {
-                    select: {variances: true}
+                    select: { variances: true }
                 },
                 variances: {
                     select: {
@@ -91,10 +92,10 @@ export async function getProductVarianceRecords(dto: TProductVariancetDTO) {
 export function getProductVarianceRecordsDAO(data: Awaited<ReturnType<typeof getProductVarianceRecords>>) {
     return {
         meta: data[1],
-        pv: data[0].map(item=>{
+        pv: data[0].map(item => {
             return {
                 name: item.product.name,
-                variance: item.variances.map(x=>{
+                variance: item.variances.map(x => {
                     return {
                         "id": x.id,
                         "shiftUid": x.shiftUid,
@@ -110,6 +111,7 @@ export function getProductVarianceRecordsDAO(data: Awaited<ReturnType<typeof get
                         "businessUid": x.businessUid,
                         linkedStaffCount: x.baseShift._count.linkedStaff
                     }
+
                 })
             }
         })
