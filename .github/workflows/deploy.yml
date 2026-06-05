@@ -26,7 +26,7 @@ jobs:
           APP_DIR="backend"
           APP_NAME="backend"
           LOG_FILE="/home/chigozie/deployApi.log"
-          BUN_COMMAND = "/home/chigozie/.bun/bin/bun"
+          # BUN_COMMAND = "/home/chigozie/.bun/bin/bun"
 
           log() {
               echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
@@ -43,10 +43,10 @@ jobs:
           git pull origin main 2>&1 | tee -a "$LOG_FILE"
 
           log "📦 Installing dependencies..."
-          $BUN_COMMAND install 2>&1 | tee -a "$LOG_FILE"
+          /home/chigozie/.bun/bin/bun install 2>&1 | tee -a "$LOG_FILE"
 
           log "db Sync in progress"
-          $BUN_COMMAND run dbPush
+          /home/chigozie/.bun/bin/bun run dbPush
 
           log "🔄 Restarting application..."
           pm2 restart $APP_NAME 2>&1 | tee -a "$LOG_FILE"
