@@ -23,7 +23,7 @@ jobs:
         script: |
           set -e
 
-          APP_DIR="stockVarBackend"
+          APP_DIR="backend"
           APP_NAME="backend"
           LOG_FILE="/home/chigozie/deployApi.log"
 
