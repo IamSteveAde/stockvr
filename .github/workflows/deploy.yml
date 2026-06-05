@@ -46,7 +46,7 @@ jobs:
           /home/chigozie/.bun/bin/bun install 2>&1 | tee -a "$LOG_FILE"
 
           log "db Sync in progress"
-          /home/chigozie/.bun/bin/bun run dbPush
+          /home/chigozie/.bun/bin/bun run migrate:prisma
 
           log "🔄 Restarting application..."
           pm2 restart $APP_NAME 2>&1 | tee -a "$LOG_FILE"
