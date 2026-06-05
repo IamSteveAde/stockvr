@@ -49,6 +49,6 @@ jobs:
           /home/chigozie/.bun/bin/bun run migrate:prisma
 
           log "🔄 Restarting application..."
-          pm2 restart $APP_NAME 2>&1 | tee -a "$LOG_FILE"
+          /home/chigozie/.bun/bin/pm2 restart $APP_NAME 2>&1 | tee -a "$LOG_FILE"
 
           log "✅ Deployment complete!"
